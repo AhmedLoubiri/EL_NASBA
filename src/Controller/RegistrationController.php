@@ -31,7 +31,9 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
+            /**
+ * @var string $plainPassword
+*/
             $plainPassword = $form->get('plainPassword')->getData();
 
             // encode the plain password
@@ -41,22 +43,26 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
 
             // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('placehomder@placeholder.xyz', 'Mail confirmer Bot'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+            // $this->emailVerifier->sendEmailConfirmation(
+            //     'app_verify_email', $user,
+            //     (new TemplatedEmail())
+            //         ->from(new Address('placehomder@placeholder.xyz', 'Mail confirmer Bot'))
+            //         ->to((string) $user->getEmail())
+            //         ->subject('Please Confirm your Email')
+            //         ->htmlTemplate('registration/confirmation_email.html.twig')
+            // );
 
             // do anything else you need here, like send an email
+            $this->addFlash('success', 'Registration successful! Please check your email to verify your account.');
 
             return $security->login($user, 'form_login', 'main');
         }
 
-        return $this->render('registration/register.html.twig', [
+        return $this->render(
+            'registration/register.html.twig', [
             'registrationForm' => $form,
-        ]);
+            ]
+        );
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
@@ -66,7 +72,9 @@ class RegistrationController extends AbstractController
 
         // validate email confirmation link, sets User::isVerified=true and persists
         try {
-            /** @var User $user */
+            /**
+ * @var User $user
+*/
             $user = $this->getUser();
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
