@@ -30,9 +30,16 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
+    /**
+     * @var Collection<int, Commande>
+     */
+    #[ORM\ManyToMany(targetEntity: Commande::class, mappedBy: 'products')]
+    private Collection $yes;
+
     public function __construct()
     {
         $this->relation = new ArrayCollection();
+        $this->yes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -96,6 +103,33 @@ class Product
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commande>
+     */
+    public function getYes(): Collection
+    {
+        return $this->yes;
+    }
+
+    public function addYe(Commande $ye): static
+    {
+        if (!$this->yes->contains($ye)) {
+            $this->yes->add($ye);
+            $ye->addProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeYe(Commande $ye): static
+    {
+        if ($this->yes->removeElement($ye)) {
+            $ye->removeProduct($this);
+        }
 
         return $this;
     }
