@@ -1,0 +1,24 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}season{% endblock %}
+
+{% block body %}
+    {% for season in seasons %}
+        <div class="alert alert-warning">
+            {{ season.name }} : {{ season.dateDebut|date('m-d') }} | {{ season.dateFin|date('m-d') }}
+            <br>
+            <em>Products:</em>
+            <ul>
+                {% for product in season.products %}
+                    <li>{{ product.label }}</li>
+                {% else %}
+                    <li>No products assigned.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No seasons found.
+        </div>
+    {% endfor %}
+{% endblock %}
