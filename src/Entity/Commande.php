@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommandeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommandeRepository::class)]
@@ -27,6 +28,9 @@ class Commande
      */
     #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'yes')]
     private Collection $products;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTime $date_commande = null;
 
     public function __construct()
     {
@@ -82,6 +86,18 @@ class Commande
     public function removeProduct(Product $product): static
     {
         $this->products->removeElement($product);
+
+        return $this;
+    }
+
+    public function getDateCommande(): ?\DateTime
+    {
+        return $this->date_commande;
+    }
+
+    public function setDateCommande(\DateTime $date_commande): static
+    {
+        $this->date_commande = $date_commande;
 
         return $this;
     }
