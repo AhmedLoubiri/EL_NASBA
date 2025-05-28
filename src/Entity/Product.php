@@ -42,6 +42,9 @@ class Product
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'products')]
     private Collection $categories;
 
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->relation = new ArrayCollection();
@@ -161,6 +164,18 @@ class Product
     public function removeCategory(Category $category): static
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

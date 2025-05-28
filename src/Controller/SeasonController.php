@@ -9,7 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/season')]
 final class SeasonController extends AbstractController
 {
@@ -30,6 +30,7 @@ final class SeasonController extends AbstractController
             'seasons' => $seasons,
         ]);
     }
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/add/{name}/{dateDebut}/{dateFin}', name: 'add_season')]
     public function addSeason(
         $name,
@@ -52,6 +53,7 @@ final class SeasonController extends AbstractController
         return $this->redirectToRoute('list_season');
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/delete/{id}', name: 'delete_person')]
     public function delete(Season $season = null): Response
     {

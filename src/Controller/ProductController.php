@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controller;
 
 use App\Entity\Product;
@@ -10,8 +11,9 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/product')]
+#[Route('/product', name: 'app_products')]
 final class ProductController extends AbstractController
 {
     private ProductRepository $repository;
@@ -32,6 +34,20 @@ final class ProductController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
+    public function show(Product $product): Response
+    {
+        // Get related products from same categories
+        $relatedProducts = $this->productRepository->findRelatedProducts($product, 4);
+
+        return $this->render('product/show.html.twig', [
+            'product' => $product,
+            'related_products' => $relatedProducts,
+        ]);
+    }
+
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/add/{label}/{prix}', name: 'add_product')]
     public function add($label, $prix): Response{
         $product = new Product();
@@ -42,6 +58,7 @@ final class ProductController extends AbstractController
         return $this->redirectToRoute('list_product');
     }
 
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/assignSeason/{productId}/{seasonId}', name: 'assign_season')]
     public function assignSeason(int $productId, int $seasonId): Response
     {
@@ -59,6 +76,7 @@ final class ProductController extends AbstractController
     }
 
     # a method to add a product with seasons
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/add/{label}/{prix}/{seasons}', name: 'add_product_with_seasons')]
     public function addWithSeasons(
         $label,
@@ -83,6 +101,7 @@ final class ProductController extends AbstractController
         return $this->redirectToRoute('list_product');
     }
 
+    # a method to add a product with seasons
     #[Route('/delete/{id}', name: 'delete_product')]
     public function delete(Product $product = null): Response
     {
