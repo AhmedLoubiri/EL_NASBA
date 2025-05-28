@@ -2,17 +2,300 @@
 
 namespace App\Controller;
 
+use App\Entity\Panier;
+use App\Entity\Product;
+use App\Repository\ProductRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class CartController extends AbstractController
+class CartController extends AbstractController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private ProductRepository $productRepository
+    ) {}
+
     #[Route('/cart', name: 'app_cart')]
-    public function index(): Response
+    public function index(SessionInterface $session): Response
     {
-        return $this->render('cart/index.html.twig', [
+        $user = $this->getUser();
+        $cartItems = [];
+        $subtotal = 0;
+        $shipping = 9.99;
+        $total = 0;
+
+        if ($user) {
+            // Get panier directly from user (owning side)
+            $panier = $user->getPanier();
+
+            if ($panier) {
+                $products = $panier->getProduct();
+
+                // Convert products to cart items format with quantities from session
+                foreach ($products as $product) {
+                    $quantity = $this->getProductQuantityFromSession($session, $product->getId());
+                    $cartItems[] = [
+                        'id' => $product->getId(),
+                        'product' => $product,
+                        'quantity' => $quantity
+                    ];
+                    $subtotal += $product->getPrix() * $quantity;
+                }
+            }
+        } else {
+            // Handle session-based cart for non-logged users
+            $sessionCart = $session->get('cart', []);
+            $cartItems = $this->convertSessionToCartItems($sessionCart);
+
+            foreach ($cartItems as $item) {
+                $subtotal += $item['product']->getPrix() * $item['quantity'];
+            }
+        }
+
+        // Free shipping for orders over 50€
+        if ($subtotal >= 50) {
+            $shipping = 0;
+        }
+
+        $total = $subtotal + $shipping;
+
+        return $this->render('cart/cart.html.twig', [
             'controller_name' => 'CartController',
+            'cart_items' => $cartItems,
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'total' => $total,
+            'cart_count' => count($cartItems)
         ]);
+    }
+
+    #[Route('/cart/add/{id}', name: 'app_cart_add', methods: ['POST'])]
+    public function add(int $id, Request $request, SessionInterface $session): JsonResponse
+    {
+        $product = $this->productRepository->find($id);
+
+        if (!$product) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], 404);
+        }
+
+        $quantity = $request->request->getInt('quantity', 1);
+        $user = $this->getUser();
+
+        if ($user) {
+            // Get panier directly from user
+            $panier = $user->getPanier();
+
+            if (!$panier) {
+                $panier = new Panier();
+                $user->setPanier($panier);
+                $this->entityManager->persist($panier);
+            }
+
+            // Add product to panier if not already there
+            if (!$panier->getProduct()->contains($product)) {
+                $panier->addProduct($product);
+            }
+
+            // Store/update quantity in session
+            $currentQuantity = $this->getProductQuantityFromSession($session, $id);
+            $this->setProductQuantityInSession($session, $id, $currentQuantity + $quantity);
+
+            $this->entityManager->flush();
+        } else {
+            // Session cart for non-logged users
+            $this->addToSessionCart($session, $id, $quantity);
+        }
+
+        return new JsonResponse(['success' => true, 'message' => 'Produit ajouté au panier']);
+    }
+
+    #[Route('/cart/update/{id}', name: 'app_cart_update', methods: ['POST'])]
+    public function update(int $id, Request $request, SessionInterface $session): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $quantity = $data['quantity'] ?? 1;
+
+        $user = $this->getUser();
+
+        if ($user) {
+            $product = $this->productRepository->find($id);
+            $panier = $user->getPanier();
+
+            if (!$product || !$panier || !$panier->getProduct()->contains($product)) {
+                return new JsonResponse(['success' => false, 'message' => 'Article non trouvé'], 404);
+            }
+
+            if ($quantity <= 0) {
+                $panier->removeProduct($product);
+                $this->removeProductQuantityFromSession($session, $id);
+            } else {
+                $this->setProductQuantityInSession($session, $id, $quantity);
+            }
+
+            $this->entityManager->flush();
+        } else {
+            // Update session cart
+            $this->updateSessionCart($session, $id, $quantity);
+        }
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/cart/remove/{id}', name: 'app_cart_remove', methods: ['DELETE'])]
+    public function remove(int $id, SessionInterface $session): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if ($user) {
+            $product = $this->productRepository->find($id);
+            $panier = $user->getPanier();
+
+            if (!$product || !$panier || !$panier->getProduct()->contains($product)) {
+                return new JsonResponse(['success' => false, 'message' => 'Article non trouvé'], 404);
+            }
+
+            $panier->removeProduct($product);
+            $this->removeProductQuantityFromSession($session, $id);
+            $this->entityManager->flush();
+        } else {
+            // Remove from session cart
+            $this->removeFromSessionCart($session, $id);
+        }
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/cart/clear', name: 'app_cart_clear', methods: ['POST'])]
+    public function clear(SessionInterface $session): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if ($user) {
+            $panier = $user->getPanier();
+
+            if ($panier) {
+                // Remove all products
+                foreach ($panier->getProduct() as $product) {
+                    $panier->removeProduct($product);
+                }
+                $this->clearProductQuantitiesFromSession($session);
+                $this->entityManager->flush();
+            }
+        } else {
+            // Clear session cart
+            $this->clearSessionCart($session);
+        }
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/cart/count', name: 'app_cart_count', methods: ['GET'])]
+    public function getCartCount(SessionInterface $session): JsonResponse
+    {
+        $user = $this->getUser();
+        $count = 0;
+
+        if ($user) {
+            $panier = $user->getPanier();
+
+            if ($panier) {
+                foreach ($panier->getProduct() as $product) {
+                    $count += $this->getProductQuantityFromSession($session, $product->getId());
+                }
+            }
+        } else {
+            $sessionCart = $session->get('cart', []);
+            $count = array_sum($sessionCart);
+        }
+
+        return new JsonResponse(['count' => $count]);
+    }
+
+    // Session cart methods for non-logged users
+    private function addToSessionCart(SessionInterface $session, int $productId, int $quantity): void
+    {
+        $cart = $session->get('cart', []);
+
+        if (isset($cart[$productId])) {
+            $cart[$productId] += $quantity;
+        } else {
+            $cart[$productId] = $quantity;
+        }
+
+        $session->set('cart', $cart);
+    }
+
+    private function updateSessionCart(SessionInterface $session, int $productId, int $quantity): void
+    {
+        $cart = $session->get('cart', []);
+
+        if ($quantity <= 0) {
+            unset($cart[$productId]);
+        } else {
+            $cart[$productId] = $quantity;
+        }
+
+        $session->set('cart', $cart);
+    }
+
+    private function removeFromSessionCart(SessionInterface $session, int $productId): void
+    {
+        $cart = $session->get('cart', []);
+        unset($cart[$productId]);
+        $session->set('cart', $cart);
+    }
+
+    private function clearSessionCart(SessionInterface $session): void
+    {
+        $session->remove('cart');
+    }
+
+    private function convertSessionToCartItems(array $sessionCart): array
+    {
+        $cartItems = [];
+
+        foreach ($sessionCart as $productId => $quantity) {
+            $product = $this->productRepository->find($productId);
+            if ($product) {
+                $cartItems[] = [
+                    'id' => $productId,
+                    'product' => $product,
+                    'quantity' => $quantity
+                ];
+            }
+        }
+
+        return $cartItems;
+    }
+
+    // Product quantity methods for logged users (using session for quantities)
+    private function setProductQuantityInSession(SessionInterface $session, int $productId, int $quantity): void
+    {
+        $quantities = $session->get('user_cart_quantities', []);
+        $quantities[$productId] = $quantity;
+        $session->set('user_cart_quantities', $quantities);
+    }
+
+    private function removeProductQuantityFromSession(SessionInterface $session, int $productId): void
+    {
+        $quantities = $session->get('user_cart_quantities', []);
+        unset($quantities[$productId]);
+        $session->set('user_cart_quantities', $quantities);
+    }
+
+    private function clearProductQuantitiesFromSession(SessionInterface $session): void
+    {
+        $session->remove('user_cart_quantities');
+    }
+
+    private function getProductQuantityFromSession(SessionInterface $session, int $productId): int
+    {
+        $quantities = $session->get('user_cart_quantities', []);
+        return $quantities[$productId] ?? 1;
     }
 }
