@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/product')]
+#[Route('/product', name: 'app_product_')]
 final class ProductController extends AbstractController
 {
     private ProductRepository $repository;
@@ -49,7 +49,8 @@ final class ProductController extends AbstractController
     }
 
     #[Route('/add/{label}/{prix}', name: 'add_product')]
-    public function add($label, $prix): Response{
+    public function add($label, $prix): Response
+    {
         $product = new Product();
         $product->setLabel($label);
         $product->setPrix($prix);
@@ -79,7 +80,7 @@ final class ProductController extends AbstractController
         $label,
         $prix,
         $seasons
-    ): Response{
+    ): Response {
         $product = new Product();
         $product->setLabel($label);
         $product->setPrix($prix);
@@ -137,43 +138,47 @@ final class ProductController extends AbstractController
         // Sorting
         $sort = $request->query->get('sort', 'label');
         switch ($sort) {
-            case 'price_asc':
-                $queryBuilder->orderBy('p.prix', 'ASC');
-                break;
-            case 'price_desc':
-                $queryBuilder->orderBy('p.prix', 'DESC');
-                break;
-            case 'newest':
-                $queryBuilder->orderBy('p.id', 'DESC');
-                break;
-            default:
-                $queryBuilder->orderBy('p.label', 'ASC');
+        case 'price_asc':
+            $queryBuilder->orderBy('p.prix', 'ASC');
+            break;
+        case 'price_desc':
+            $queryBuilder->orderBy('p.prix', 'DESC');
+            break;
+        case 'newest':
+            $queryBuilder->orderBy('p.id', 'DESC');
+            break;
+        default:
+            $queryBuilder->orderBy('p.label', 'ASC');
         }
 
         $products = $queryBuilder->getQuery()->getResult();
         $categories = $this->entityManager->getRepository(Category::class)->findAll();
         $seasons = $this->entityManager->getRepository(Season::class)->findAll();
 
-        return $this->render('product/index.html.twig', [
+        return $this->render(
+            'product/index.html.twig', [
             'products' => $products,
             'categories' => $categories,
             'seasons' => $seasons,
-        ]);
+            ]
+        );
     }
 
-    #[Route('/show/{id}', name: 'app_product_show')]
+    #[Route('/show/{id}', name: 'show_product')]
     public function show(Product $product): Response
     {
         // Get related products (simple implementation)
         $relatedProducts = $this->repository->findBy([], ['id' => 'DESC'], 4);
 
-        return $this->render('product/show.html.twig', [
+        return $this->render(
+            'product/show.html.twig', [
             'product' => $product,
             'related_products' => $relatedProducts,
-        ]);
+            ]
+        );
     }
 
-    #[Route('/category/{id}', name: 'app_products_by_category')]
+    #[Route('/category/{id}', name: 'list_product_by_category')]
     public function byCategory(Category $category): Response
     {
         $queryBuilder = $this->repository->createQueryBuilder('p')
@@ -186,11 +191,13 @@ final class ProductController extends AbstractController
         $categories = $this->entityManager->getRepository(Category::class)->findAll();
         $seasons = $this->entityManager->getRepository(Season::class)->findAll();
 
-        return $this->render('product/index.html.twig', [
+        return $this->render(
+            'product/index.html.twig', [
             'products' => $products,
             'categories' => $categories,
             'seasons' => $seasons,
             'current_category' => $category,
-        ]);
+            ]
+        );
     }
 }

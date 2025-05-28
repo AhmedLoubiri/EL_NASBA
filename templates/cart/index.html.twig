@@ -1,0 +1,107 @@
+{# Alternative simpler version if you prefer #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Mon Panier</h1>
+
+        {% if cart_items is empty %}
+            <div class="alert alert-info">
+                <h4>Votre panier est vide</h4>
+                <p>Ajoutez des produits à votre panier pour commencer vos achats.</p>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-8">
+                    {% for item in cart_items %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <img src="{{ item.product.imageUrl ?? 'https://via.placeholder.com/150' }}"
+                                             class="img-fluid" alt="{{ item.product.label }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>{{ item.product.label }}</h5>
+                                        <p class="text-muted">{{ item.product.description }}</p>
+                                        <p><strong>{{ item.product.prix|number_format(2) }}€</strong></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group mb-2">
+                                            <button class="btn btn-outline-secondary" onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})">-</button>
+                                            <input type="text" class="form-control text-center" value="{{ item.quantity }}" readonly>
+                                            <button class="btn btn-outline-secondary" onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})">+</button>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm w-100" onclick="removeItem({{ item.id }})">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Résumé</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Sous-total: <strong>{{ subtotal|number_format(2) }}€</strong></p>
+                            <p>Livraison: <strong>
+                                    {% if shipping == 0 %}
+                                        Gratuite
+                                    {% else %}
+                                        {{ shipping|number_format(2) }}€
+                                    {% endif %}
+                                </strong></p>
+                            <hr>
+                            <p>Total: <strong>{{ total|number_format(2) }}€</strong></p>
+                            <button class="btn btn-primary w-100">Procéder au paiement</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function updateQuantity(itemId, newQuantity) {
+            if (newQuantity <= 0) {
+                removeItem(itemId);
+                return;
+            }
+
+            fetch(`/cart/update/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity: newQuantity })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+        }
+
+        function removeItem(itemId) {
+            if (confirm('Supprimer cet article ?')) {
+                fetch(`/cart/remove/${itemId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    });
+            }
+        }
+    </script>
+{% endblock %}
