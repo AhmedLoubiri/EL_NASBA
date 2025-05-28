@@ -1,28 +1,24 @@
-{% extends 'layout.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}product{% endblock %}
 
 {% block body %}
-    {% for product in products %}
-        <div class="alert alert-warning">
-            {{ product.label }} : {{ product.prix }}
-            <br>
-            <em>Seasons:</em>
-            <ul>
-                {% for season in product.relation %}
-                    <li>{{ season.name }}</li>
-                {% else %}
-                    <li>No seasons assigned.</li>
-                {% endfor %}
-            </ul>
-        </div>
+{% for product in products %}
+<div class="alert alert-warning">
+  {{ product.label }} : {{ product.prix }}
+  <br>
+  <em>Seasons:</em>
+  <ul>
+    {% for season in product.relation %}
+    <li>{{ season.name }}</li>
     {% else %}
-        <div class="alert alert-info">
-            No products found.
-        </div>
+    <li>No seasons assigned.</li>
     {% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="alert alert-info">
+  No products found.
+</div>
+{% endfor %}
 {% endblock %}
-
-
-
-
