@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Commandes{% endblock %}
+
+{% block body %}
+    <h1>Liste de toutes les commandes</h1>
+    <div class="mb-3 text-end">
+        <a href="{{ path('commande_admin_new') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nouvelle Commande
+        </a>
+    </div>
+    <a href="{{ path('add_commande') }}" class="btn btn-primary">Créer une nouvelle commande</a>
+    <div class="row">
+        {% for commande in commandes %}
+        <div class="col card-body">
+            <h5 class="card-title">{{ commande.id }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ commande.dateCommande|date('d/m/Y H:i') }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted">{{ commande.user.email }}</h6>
+            <p class="card-text">Prix total: {{ commande.prixTotal }}</p>
+            <p class="card-text">
+                <span class="badge
+                    {% if commande.statut == 'en attente' %}bg-warning text-dark
+                    {% elseif commande.statut == 'expédiée' %}bg-info
+                    {% elseif commande.statut == 'annulée' %}bg-danger
+                    {% else %}bg-success{% endif %}">
+                    Etat: {{ commande.statut }}
+                </span>
+            <a href="{{ path('commandes.detail',{ id: commande.id }) }}" class="card-link">Détails</a>
+            <a href="{{ path('commandes.delete',{ id: commande.id }) }}" class="card-link">Supprimer</a>
+            <a href="{{ path('commandes.edit',{ id: commande.id }) }}" class="card-link">Editer</a>
+        </div>
+    </div>
+    {% if isPaginated is defined  and isPaginated%}
+        <div class="row mt-3">
+            <nav aria-label="col Page navigation example">
+                <ul class="pagination">
+                    {% if page != 1 %}
+                        <li class="page-item"><a class="page-link" href="{{ path('commandes.list.alls',{page:page-1,nbre:nbre}) }}">Previous</a></li>
+                    {% endif %}
+                    {% for i in range(1,nbrePage) %}
+                        <li class="page-item"><a class="page-link" href="{{ path('commandes.list.alls',{page:i,nbre:nbre}) }}">{{ i }}</a></li>
+                    {% endfor %}
+                    {% if page != nbrePage %}
+                        <li class="page-item"><a class="page-link" href="{{ path('commandes.list.alls',{page:page+1,nbre:nbre}) }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+    {% endif %}
+{% endblock %}

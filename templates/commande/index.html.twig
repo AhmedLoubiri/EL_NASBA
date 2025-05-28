@@ -1,20 +1,38 @@
+{# templates/a.html.twig #}
+
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CommandeController!{% endblock %}
+{% block title %}My Orders{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <h1>My Orders</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Symfony project/EL_NASBA/src/Controller/CommandeController.php</code></li>
-        <li>Your template at <code>C:/Symfony project/EL_NASBA/templates/commande/index.html.twig</code></li>
-    </ul>
-</div>
+    {% if orders is empty %}
+        <p>No orders found.</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.total|number_format(2) }} €</td>
+                    <td>
+                        <a href="{{ path('order_show', {id: order.id}) }}">View</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}

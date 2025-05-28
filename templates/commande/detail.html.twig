@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la Commande #{{ commande.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4 text-primary">Commande n°{{ commande.id }}</h1>
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <strong>Date :</strong> {{ commande.dateCommande|date('d/m/Y H:i') }}<br>
+                <strong>Statut :</strong>
+                <span class="badge
+                {% if commande.statut == 'en attente' %}bg-warning text-dark
+                {% elseif commande.statut == 'expédiée' %}bg-info
+                {% elseif commande.statut == 'annulée' %}bg-danger
+                {% else %}bg-success{% endif %}">
+                {{ commande.statut|capitalize }}
+            </span>
+            </div>
+            <div class="card-body">
+                <p><strong>Utilisateur :</strong> {{ commande.user.username ?? commande.user.email }}</p>
+                <p><strong>Prix Total :</strong> {{ commande.prixTotal }} €</p>
+
+                {% if commande.products is defined %}
+                    <hr>
+                    <h5>Articles :</h5>
+                    <ul class="list-group">
+                        {% for article in commande.products%}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ article.nom }} <span>{{ article.prix }} €</span>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item text-muted">Aucun article associé</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ path('user_commandes') }}" class="btn btn-secondary">Retour</a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('commande_admin_edit', {'id': commande.id}) }}" class="btn btn-primary">Modifier</a>
+                {% elseif commande.user == app.user and commande.statut != 'expédiée' %}
+                    <a href="{{ path('commande_user_edit', {'id': commande.id}) }}" class="btn btn-primary">Modifier</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
