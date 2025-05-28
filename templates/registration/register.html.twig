@@ -1,187 +1,191 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription - E-Commerce{% endblock %}
+{% block title %}Inscription - EL_NASBA{% endblock %}
 
 {% block body %}
-  <div class="container my-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-          <div class="card-header text-center bg-primary text-white">
-            <h3><i class="fas fa-user-plus"></i> Créer un compte</h3>
-            <p class="mb-0">Rejoignez notre communauté</p>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header text-center bg-primary text-white">
+          <h3><i class="fas fa-user-plus"></i> Créer un compte</h3>
+          <p class="mb-0">Rejoignez notre communauté</p>
+        </div>
+        <div class="card-body p-4">
+          {{ form_start(registrationForm) }}
+
+          <div class="mb-3">
+            {{ form_label(registrationForm.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control', 'placeholder': 'Votre nom
+            d\'utilisateur'}}) }}
+            {{ form_errors(registrationForm.username) }}
           </div>
-          <div class="card-body p-4">
-            {{ form_start(registrationForm) }}
 
-            <div class="mb-3">
-              {{ form_label(registrationForm.username, 'Nom d\'utilisateur', {'label_attr': {'class': 'form-label'}}) }}
-              {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control', 'placeholder': 'Votre nom d\'utilisateur'}}) }}
-              {{ form_errors(registrationForm.username) }}
+          <div class="mb-3">
+            {{ form_label(registrationForm.email, 'Adresse email', {'label_attr': {'class': 'form-label'}}) }}
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder':
+              'votre@email.com'}}) }}
             </div>
+            {{ form_errors(registrationForm.email) }}
+          </div>
 
-            <div class="mb-3">
-              {{ form_label(registrationForm.email, 'Adresse email', {'label_attr': {'class': 'form-label'}}) }}
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'votre@email.com'}}) }}
-              </div>
-              {{ form_errors(registrationForm.email) }}
+          <div class="mb-3">
+            {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Votre
+              mot de passe'}}) }}
             </div>
+            {{ form_errors(registrationForm.plainPassword) }}
+            <div class="form-text">Le mot de passe doit contenir au moins 6 caractères.</div>
+          </div>
 
-            <div class="mb-3">
-              {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Votre mot de passe'}}) }}
-              </div>
-              {{ form_errors(registrationForm.plainPassword) }}
-              <div class="form-text">Le mot de passe doit contenir au moins 6 caractères.</div>
-            </div>
+          <div class="mb-3 form-check">
+            {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+            {{ form_label(registrationForm.agreeTerms, 'J\'accepte les conditions d\'utilisation', {'label_attr':
+            {'class': 'form-check-label'}}) }}
+            {{ form_errors(registrationForm.agreeTerms) }}
+          </div>
 
-            <div class="mb-3 form-check">
-              {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-              {{ form_label(registrationForm.agreeTerms, 'J\'accepte les conditions d\'utilisation', {'label_attr': {'class': 'form-check-label'}}) }}
-              {{ form_errors(registrationForm.agreeTerms) }}
-            </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-user-plus"></i> Créer mon compte
+            </button>
+          </div>
 
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fas fa-user-plus"></i> Créer mon compte
-              </button>
-            </div>
+          {{ form_end(registrationForm) }}
 
-            {{ form_end(registrationForm) }}
+          <hr class="my-4">
 
-            <hr class="my-4">
+          <div class="text-center">
+            <p class="text-muted">Vous avez déjà un compte ?</p>
+            <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
+              <i class="fas fa-sign-in-alt"></i> Se connecter
+            </a>
+          </div>
+        </div>
+      </div>
 
-            <div class="text-center">
-              <p class="text-muted">Vous avez déjà un compte ?</p>
-              <a href="{{ path('app_login') }}" class="btn btn-outline-primary">
-                <i class="fas fa-sign-in-alt"></i> Se connecter
-              </a>
+      <!-- Benefits Section -->
+      <div class="row mt-4">
+        <div class="col-md-4 text-center mb-3">
+          <div class="card h-100 border-0">
+            <div class="card-body">
+              <i class="fas fa-shipping-fast fa-2x text-primary mb-2"></i>
+              <h6>Livraison rapide</h6>
+              <small class="text-muted">Livraison gratuite dès 50dt</small>
             </div>
           </div>
         </div>
-
-        <!-- Benefits Section -->
-        <div class="row mt-4">
-          <div class="col-md-4 text-center mb-3">
-            <div class="card h-100 border-0">
-              <div class="card-body">
-                <i class="fas fa-shipping-fast fa-2x text-primary mb-2"></i>
-                <h6>Livraison rapide</h6>
-                <small class="text-muted">Livraison gratuite dès 50€</small>
-              </div>
+        <div class="col-md-4 text-center mb-3">
+          <div class="card h-100 border-0">
+            <div class="card-body">
+              <i class="fas fa-heart fa-2x text-primary mb-2"></i>
+              <h6>Liste de souhaits</h6>
+              <small class="text-muted">Sauvegardez vos produits favoris</small>
             </div>
           </div>
-          <div class="col-md-4 text-center mb-3">
-            <div class="card h-100 border-0">
-              <div class="card-body">
-                <i class="fas fa-heart fa-2x text-primary mb-2"></i>
-                <h6>Liste de souhaits</h6>
-                <small class="text-muted">Sauvegardez vos produits favoris</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 text-center mb-3">
-            <div class="card h-100 border-0">
-              <div class="card-body">
-                <i class="fas fa-gift fa-2x text-primary mb-2"></i>
-                <h6>Offres exclusives</h6>
-                <small class="text-muted">Accédez à des promotions spéciales</small>
-              </div>
+        </div>
+        <div class="col-md-4 text-center mb-3">
+          <div class="card h-100 border-0">
+            <div class="card-body">
+              <i class="fas fa-gift fa-2x text-primary mb-2"></i>
+              <h6>Offres exclusives</h6>
+              <small class="text-muted">Accédez à des promotions spéciales</small>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Password strength indicator
-      const passwordInput = document.querySelector('#registration_form_plainPassword');
-      const form = document.querySelector('form');
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Password strength indicator
+    const passwordInput = document.querySelector('#registration_form_plainPassword');
+    const form = document.querySelector('form');
 
-      if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-          const password = this.value;
-          const strength = getPasswordStrength(password);
-          updatePasswordStrength(strength);
-        });
-      }
+    if (passwordInput) {
+      passwordInput.addEventListener('input', function () {
+        const password = this.value;
+        const strength = getPasswordStrength(password);
+        updatePasswordStrength(strength);
+      });
+    }
 
-      // Form validation
-      if (form) {
-        form.addEventListener('submit', function(e) {
-          const password = passwordInput.value;
-          const agreeTerms = document.querySelector('#registration_form_agreeTerms');
+    // Form validation
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        const password = passwordInput.value;
+        const agreeTerms = document.querySelector('#registration_form_agreeTerms');
 
-          if (password.length < 6) {
-            e.preventDefault();
-            alert('Le mot de passe doit contenir au moins 6 caractères.');
-            return false;
-          }
-
-          if (!agreeTerms.checked) {
-            e.preventDefault();
-            alert('Vous devez accepter les conditions d\'utilisation.');
-            return false;
-          }
-        });
-      }
-
-      function getPasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 6) strength++;
-        if (password.match(/[a-z]/)) strength++;
-        if (password.match(/[A-Z]/)) strength++;
-        if (password.match(/[0-9]/)) strength++;
-        if (password.match(/[^a-zA-Z0-9]/)) strength++;
-        return strength;
-      }
-
-      function updatePasswordStrength(strength) {
-        const strengthTexts = ['Très faible', 'Faible', 'Moyen', 'Fort', 'Très fort'];
-        const strengthColors = ['danger', 'warning', 'info', 'success', 'success'];
-
-        // Remove existing strength indicator
-        const existingIndicator = document.querySelector('.password-strength');
-        if (existingIndicator) {
-          existingIndicator.remove();
+        if (password.length < 6) {
+          e.preventDefault();
+          alert('Le mot de passe doit contenir au moins 6 caractères.');
+          return false;
         }
 
-        if (passwordInput.value.length > 0) {
-          const strengthDiv = document.createElement('div');
-          strengthDiv.className = `password-strength small text-${strengthColors[strength]} mt-1`;
-          strengthDiv.textContent = `Force du mot de passe: ${strengthTexts[strength]}`;
-          passwordInput.parentNode.parentNode.appendChild(strengthDiv);
+        if (!agreeTerms.checked) {
+          e.preventDefault();
+          alert('Vous devez accepter les conditions d\'utilisation.');
+          return false;
         }
+      });
+    }
+
+    function getPasswordStrength(password) {
+      let strength = 0;
+      if (password.length >= 6) strength++;
+      if (password.match(/[a-z]/)) strength++;
+      if (password.match(/[A-Z]/)) strength++;
+      if (password.match(/[0-9]/)) strength++;
+      if (password.match(/[^a-zA-Z0-9]/)) strength++;
+      return strength;
+    }
+
+    function updatePasswordStrength(strength) {
+      const strengthTexts = ['Très faible', 'Faible', 'Moyen', 'Fort', 'Très fort'];
+      const strengthColors = ['danger', 'warning', 'info', 'success', 'success'];
+
+      // Remove existing strength indicator
+      const existingIndicator = document.querySelector('.password-strength');
+      if (existingIndicator) {
+        existingIndicator.remove();
       }
 
-      // Real-time validation styling
-      const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
-      inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-          if (this.value.trim() === '') {
-            this.classList.add('is-invalid');
-            this.classList.remove('is-valid');
-          } else {
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-          }
-        });
+      if (passwordInput.value.length > 0) {
+        const strengthDiv = document.createElement('div');
+        strengthDiv.className = `password-strength small text-${strengthColors[strength]} mt-1`;
+        strengthDiv.textContent = `Force du mot de passe: ${strengthTexts[strength]}`;
+        passwordInput.parentNode.parentNode.appendChild(strengthDiv);
+      }
+    }
 
-        input.addEventListener('input', function() {
-          if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-          }
-        });
+    // Real-time validation styling
+    const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+    inputs.forEach(input => {
+      input.addEventListener('blur', function () {
+        if (this.value.trim() === '') {
+          this.classList.add('is-invalid');
+          this.classList.remove('is-valid');
+        } else {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        }
+      });
+
+      input.addEventListener('input', function () {
+        if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        }
       });
     });
-  </script>
+  });
+</script>
 {% endblock %}

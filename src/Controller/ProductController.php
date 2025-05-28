@@ -110,7 +110,6 @@ final class ProductController extends AbstractController
         return $this->redirectToRoute('list_product');
     }
 
-    // NEW METHODS FOR FRONTEND - ADD THESE TO YOUR CONTROLLER
     #[Route('s', name: 'app_products')]
     public function products(Request $request): Response
     {
@@ -124,7 +123,6 @@ final class ProductController extends AbstractController
                 ->setParameter('categories', $categoryIds);
         }
 
-        // Filter by price range
         if ($request->query->get('price_min')) {
             $queryBuilder->andWhere('p.prix >= :price_min')
                 ->setParameter('price_min', $request->query->get('price_min'));
@@ -135,7 +133,6 @@ final class ProductController extends AbstractController
                 ->setParameter('price_max', $request->query->get('price_max'));
         }
 
-        // Sorting
         $sort = $request->query->get('sort', 'label');
         switch ($sort) {
         case 'price_asc':
