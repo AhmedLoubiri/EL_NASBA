@@ -94,12 +94,98 @@
       margin-bottom: 20px;
       border-radius: 10px;
     }
+    /* Style the date picker to look elegant and work properly */
+
+    .elegant-date-picker input[type="date"] {
+      font-size: 0.85rem;
+      color: #fff;
+      background-color: #2c3e50; /* dark background */
+      border: none;
+      padding: 0.25rem 0.5rem;
+      width: 140px;
+      border-radius: 6px;
+      appearance: auto;
+    }
+
+    .elegant-date-picker input[type="date"]:focus {
+      outline: none;
+      background-color: #34495e;
+    }
+
+    .elegant-date-picker input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    .elegant-date-picker input[type="date"]::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+
+
+    .search-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 0.9rem;
+      margin-left: 6px;
+      cursor: pointer;
+    }
+
+    .search-btn:hover {
+      color: #ccc;
+    }
+
   </style>
 
   {% block stylesheets %}{% endblock %}
 </head>
 
 <body>
+
+<div class="elegant-date-picker me-3">
+  <div class="d-flex align-items-center">
+    <form method="GET" action="{{ path('app_product_app_products') }}" class="d-flex align-items-center">
+      <div class="d-flex align-items-center date-input-group rounded-pill px-2 py-1">
+        <i class="fas fa-calendar-alt text-white-50 me-1"></i>
+        {# THE SYSTEM KNOWS TODAY'S DATE THROUGH PHP's 'now' FILTER #}
+        <input type="date"
+               class="form-control-sm"
+               name="filter_date"
+               value="{{ app.request.query.get('filter_date') ?? 'now'|date('Y-m-d') }}"
+               title="Today: {{ 'now'|date('Y-m-d') }} - Select date to find seasonal products">
+        <button type="submit" class="search-btn px-1" title="Search products">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </form>
+
+    {# Show All / Auto Filter Toggle #}
+    <div class="ms-2">
+      {% if app.request.query.get('show_all') == '1' %}
+        <a href="{{ path('app_product_app_products') }}" class="show-all-btn" title="Auto-filter by today's season">
+          <i class="fas fa-magic"></i>
+        </a>
+      {% else %}
+        <a href="{{ path('app_product_app_products', {'show_all': '1'}) }}" class="show-all-btn" title="Show all products">
+          <i class="fas fa-list"></i>
+        </a>
+      {% endif %}
+    </div>
+
+    {# Current season indicator with today's date #}
+    {% if todays_season is defined and todays_season %}
+      <span class="season-indicator {{ app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') ? 'auto' : '' }}"
+            title="Today ({{ 'now'|date('Y-m-d') }}) is in {{ todays_season.name }} season">
+                                    <i class="fas fa-leaf me-1"></i>{{ todays_season.name }}
+        {% if app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') %}
+          <small>(Auto)</small>
+        {% endif %}
+                                </span>
+    {% endif %}
+  </div>
+</div>
+
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container">

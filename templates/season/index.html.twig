@@ -1,24 +1,186 @@
-{% extends 'layout.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}season{% endblock %}
+{% block title %}Produits{% if current_season %} - {{ current_season.name }}{% endif %}{% endblock %}
 
 {% block body %}
-    {% for season in seasons %}
-        <div class="alert alert-warning">
-            {{ season.name }} : {{ season.dateDebut|date('m-d') }} | {{ season.dateFin|date('m-d') }}
-            <br>
-            <em>Products:</em>
-            <ul>
-                {% for product in season.products %}
-                    <li>{{ product.label }}</li>
-                {% else %}
-                    <li>No products assigned.</li>
-                {% endfor %}
-            </ul>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    {% if current_season %}
+                        Produits {{ current_season.name }}
+                    {% else %}
+                        Tous les Produits
+                    {% endif %}
+                </h1>
+
+                {# Informations sur le filtrage par date #}
+                {% if filter_date %}
+                    <div class="alert alert-info mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="alert-heading mb-1">
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    Filtrage par date : {{ filter_date|date('d/m/Y') }}
+                                </h6>
+                                {% if current_season %}
+                                    <p class="mb-0">
+                                        Cette date correspond à la saison <strong>{{ current_season.name }}</strong>
+                                        ({{ current_season.dateDebut|date('d/m/Y') }} - {{ current_season.dateFin|date('d/m/Y') }})
+                                    </p>
+                                    <small class="text-muted">
+                                        Affichage de {{ total_products }} produit(s) pour cette saison
+                                    </small>
+                                {% else %}
+                                    <p class="mb-0 text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Aucune saison trouvée pour cette date
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <a href="{{ path('app_product_app_products') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i>Supprimer le filtre
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Filtres et recherche #}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-filter me-2"></i>Filtres
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" action="{{ path('app_product_app_products') }}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="filter_date" class="form-label">Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="filter_date"
+                                           name="filter_date"
+                                           value="{{ filter_date }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="price_min" class="form-label">Prix min</label>
+                                    <input type="number"
+                                           class="form-control"
+                                           id="price_min"
+                                           name="price_min"
+                                           value="{{ app.request.query.get('price_min') }}"
+                                           step="0.01">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="price_max" class="form-label">Prix max</label>
+                                    <input type="number"
+                                           class="form-control"
+                                           id="price_max"
+                                           name="price_max"
+                                           value="{{ app.request.query.get('price_max') }}"
+                                           step="0.01">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-search me-1"></i>Filtrer
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {# Liens rapides vers les saisons #}
+                {% if seasons is not empty %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="mb-3">
+                                <i class="fas fa-leaf me-1"></i>Parcourir par saison :
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for season in seasons %}
+                                    {% set isActive = (season.dateDebut <= 'now'|date('Y-m-d') and season.dateFin >= 'now'|date('Y-m-d')) %}
+                                    <a href="{{ path('app_product_products_by_season', {'id': season.id}) }}"
+                                       class="btn {{ current_season and current_season.id == season.id ? 'btn-primary' : (isActive ? 'btn-success' : 'btn-outline-secondary') }}">
+                                        {{ season.name }}
+                                        {% if isActive %}
+                                            <span class="badge bg-warning text-dark ms-1">Actuelle</span>
+                                        {% endif %}
+                                        <small class="d-block">
+                                            {{ season.dateDebut|date('d/m') }} - {{ season.dateFin|date('d/m') }}
+                                        </small>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Liste des produits #}
+                <div class="row">
+                    {% if products is empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning text-center">
+                                <h4>
+                                    <i class="fas fa-box-open fa-2x mb-3"></i>
+                                </h4>
+                                <h5>Aucun produit trouvé</h5>
+                                {% if current_season %}
+                                    <p>Aucun produit disponible pour la saison <strong>{{ current_season.name }}</strong>.</p>
+                                {% elseif filter_date %}
+                                    <p>Aucun produit disponible pour la date sélectionnée.</p>
+                                {% else %}
+                                    <p>Aucun produit ne correspond à vos critères.</p>
+                                {% endif %}
+                                <a href="{{ path('app_product_app_products') }}" class="btn btn-primary">
+                                    Voir tous les produits
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for product in products %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100">
+                                    {% if product.imageUrl %}
+                                        <img src="{{ product.imageUrl }}" class="card-img-top" alt="{{ product.label }}" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">{{ product.label }}</h5>
+                                        <p class="card-text">{{ product.description }}</p>
+                                        <div class="mt-auto">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="h5 text-primary mb-0">{{ product.prix|number_format(2) }}€</span>
+                                                <a href="{{ path('app_product_show_product', {'id': product.id}) }}" class="btn btn-primary">
+                                                    Voir détails
+                                                </a>
+                                            </div>
+
+                                            {# Afficher les saisons du produit #}
+                                            {% if product.relation is not empty %}
+                                                <div class="mt-2">
+                                                    <small class="text-muted">Disponible en :</small>
+                                                    {% for season in product.relation %}
+                                                        <span class="badge {{ current_season and current_season.id == season.id ? 'bg-primary' : 'bg-secondary' }} me-1">
+                                                        {{ season.name }}
+                                                    </span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    {% else %}
-        <div class="alert alert-info">
-            No seasons found.
-        </div>
-    {% endfor %}
+    </div>
 {% endblock %}
