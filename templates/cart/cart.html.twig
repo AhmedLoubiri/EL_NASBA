@@ -3,13 +3,11 @@
 {% block title %}Mon Panier - {{ parent() }}{% endblock %}
 
 {% block body %}
-<!-- Season Banner -->
 <div class="season-banner">
   <p><i class="fas fa-gift"></i> Livraison gratuite pour les commandes de plus de 50dt !</p>
 </div>
 
 <div class="container py-4">
-  <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
@@ -19,18 +17,17 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">Mon Panier</h1>
-    <a href="#" class="btn btn-outline-primary">
+    <a href="{{path('app_product_list_product')}}" class="btn btn-outline-primary">
       <i class="fas fa-arrow-left me-2"></i>Continuer vos achats
     </a>
   </div>
 
   {% if cart_items is empty %}
-  <!-- Empty Cart -->
   <div class="text-center py-5">
     <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
     <h3 class="text-muted">Votre panier est vide</h3>
     <p class="text-muted mb-4">Découvrez nos produits et ajoutez-les à votre panier</p>
-    <a href="#" class="btn btn-primary">
+    <a href="{{path('app_product_list_product')}}" class="btn btn-primary">
       Découvrir nos produits
     </a>
   </div>
@@ -89,7 +86,6 @@
       {% endfor %}
     </div>
 
-    <!-- Order Summary -->
     <div class="col-lg-4">
       <div class="card">
         <div class="card-header">
@@ -116,6 +112,7 @@
             <strong class="price">{{ total|number_format(2) }}dt</strong>
           </div>
 
+          <!-- // TODO: payment -->
           <a href="#" class="btn btn-primary w-100 mb-3">
             <i class="fas fa-credit-card me-2"></i>Procéder au paiement
           </a>
@@ -127,9 +124,8 @@
           <div class="text-center">
             <small class="text-muted">Paiement sécurisé</small>
             <div class="mt-2">
-              <i class="fab fa-cc-visa fa-2x me-2 text-primary"></i>
-              <i class="fab fa-cc-mastercard fa-2x me-2 text-warning"></i>
-              <i class="fab fa-cc-paypal fa-2x text-primary"></i>
+              <i class="fab fa-cc-stripe fa-2x me-2 text-primary"></i>
+              <!-- flouci logo if found <i class="fab fa-cc-flouci fa-2x me-2 text-primary"></i> -->
             </div>
           </div>
         </div>
@@ -148,17 +144,6 @@
         </div>
       </div>
 
-      <!-- Test Add Product -->
-      <div class="card mt-3">
-        <div class="card-body">
-          <h6>Test - Ajouter un produit</h6>
-          <button class="btn btn-sm btn-outline-primary w-100" onclick="addTestProduct()">
-            <i class="fas fa-plus me-2"></i>Ajouter produit test
-          </button>
-          <small class="text-muted d-block mt-2">Assure-toi d'avoir un produit avec l'ID 1 dans ta base de
-            données</small>
-        </div>
-      </div>
     </div>
   </div>
   {% endif %}

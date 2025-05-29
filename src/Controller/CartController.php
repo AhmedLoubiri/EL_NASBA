@@ -18,8 +18,10 @@ class CartController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ProductRepository $productRepository
-    ) {}
+    ) {
+    }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart', name: 'app_cart')]
     public function index(SessionInterface $session): Response
     {
@@ -30,13 +32,11 @@ class CartController extends AbstractController
         $total = 0;
 
         if ($user) {
-            // Get panier directly from user (owning side)
             $panier = $user->getPanier();
 
             if ($panier) {
                 $products = $panier->getProduct();
 
-                // Convert products to cart items format with quantities from session
                 foreach ($products as $product) {
                     $quantity = $this->getProductQuantityFromSession($session, $product->getId());
                     $cartItems[] = [
@@ -48,7 +48,6 @@ class CartController extends AbstractController
                 }
             }
         } else {
-            // Handle session-based cart for non-logged users
             $sessionCart = $session->get('cart', []);
             $cartItems = $this->convertSessionToCartItems($sessionCart);
 
@@ -56,38 +55,47 @@ class CartController extends AbstractController
                 $subtotal += $item['product']->getPrix() * $item['quantity'];
             }
         }
-
-        // Free shipping for orders over 50€
         if ($subtotal >= 50) {
             $shipping = 0;
         }
 
         $total = $subtotal + $shipping;
 
-        return $this->render('cart/cart.html.twig', [
+        return $this->render(
+            'cart/cart.html.twig', [
             'controller_name' => 'CartController',
             'cart_items' => $cartItems,
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'total' => $total,
             'cart_count' => count($cartItems)
-        ]);
+            ]
+        );
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart/add/{id}', name: 'app_cart_add', methods: ['POST'])]
-    public function add(int $id, Request $request, SessionInterface $session): JsonResponse
+    public function add(int $id, Request $request, SessionInterface $session): Response
     {
         $product = $this->productRepository->find($id);
 
         if (!$product) {
-            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], 404);
+            $this->addFlash('error', 'Produit non trouvé');
+            return $this->redirectToRoute(
+                'app_cart', [
+                'error' => 'Produit non trouvé'
+                ]
+            );
         }
 
-        $quantity = $request->request->getInt('quantity', 1);
+        $quantity = $request->request->get('quantity');
+        if (!$quantity || !is_numeric($quantity) || $quantity <= 0) {
+            $quantity = 1;
+        }
+
         $user = $this->getUser();
 
         if ($user) {
-            // Get panier directly from user
             $panier = $user->getPanier();
 
             if (!$panier) {
@@ -96,24 +104,26 @@ class CartController extends AbstractController
                 $this->entityManager->persist($panier);
             }
 
-            // Add product to panier if not already there
             if (!$panier->getProduct()->contains($product)) {
                 $panier->addProduct($product);
             }
 
-            // Store/update quantity in session
             $currentQuantity = $this->getProductQuantityFromSession($session, $id);
             $this->setProductQuantityInSession($session, $id, $currentQuantity + $quantity);
 
             $this->entityManager->flush();
         } else {
-            // Session cart for non-logged users
             $this->addToSessionCart($session, $id, $quantity);
         }
-
-        return new JsonResponse(['success' => true, 'message' => 'Produit ajouté au panier']);
+        $this->addFlash('success', 'Produit ajouté au panier');
+        $referrer = $request->headers->get('referer');
+        if ($referrer) {
+            return $this->redirect($referrer);
+        }
+        return $this->redirectToRoute('app_cart');
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart/update/{id}', name: 'app_cart_update', methods: ['POST'])]
     public function update(int $id, Request $request, SessionInterface $session): JsonResponse
     {
@@ -139,13 +149,13 @@ class CartController extends AbstractController
 
             $this->entityManager->flush();
         } else {
-            // Update session cart
             $this->updateSessionCart($session, $id, $quantity);
         }
 
         return new JsonResponse(['success' => true]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart/remove/{id}', name: 'app_cart_remove', methods: ['DELETE'])]
     public function remove(int $id, SessionInterface $session): JsonResponse
     {
@@ -163,13 +173,13 @@ class CartController extends AbstractController
             $this->removeProductQuantityFromSession($session, $id);
             $this->entityManager->flush();
         } else {
-            // Remove from session cart
             $this->removeFromSessionCart($session, $id);
         }
 
         return new JsonResponse(['success' => true]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart/clear', name: 'app_cart_clear', methods: ['POST'])]
     public function clear(SessionInterface $session): JsonResponse
     {
@@ -179,7 +189,6 @@ class CartController extends AbstractController
             $panier = $user->getPanier();
 
             if ($panier) {
-                // Remove all products
                 foreach ($panier->getProduct() as $product) {
                     $panier->removeProduct($product);
                 }
@@ -187,13 +196,13 @@ class CartController extends AbstractController
                 $this->entityManager->flush();
             }
         } else {
-            // Clear session cart
             $this->clearSessionCart($session);
         }
 
         return new JsonResponse(['success' => true]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/cart/count', name: 'app_cart_count', methods: ['GET'])]
     public function getCartCount(SessionInterface $session): JsonResponse
     {
@@ -216,7 +225,6 @@ class CartController extends AbstractController
         return new JsonResponse(['count' => $count]);
     }
 
-    // Session cart methods for non-logged users
     private function addToSessionCart(SessionInterface $session, int $productId, int $quantity): void
     {
         $cart = $session->get('cart', []);
@@ -273,7 +281,6 @@ class CartController extends AbstractController
         return $cartItems;
     }
 
-    // Product quantity methods for logged users (using session for quantities)
     private function setProductQuantityInSession(SessionInterface $session, int $productId, int $quantity): void
     {
         $quantities = $session->get('user_cart_quantities', []);
@@ -296,6 +303,6 @@ class CartController extends AbstractController
     private function getProductQuantityFromSession(SessionInterface $session, int $productId): int
     {
         $quantities = $session->get('user_cart_quantities', []);
-        return $quantities[$productId] ?? 1;
+        return $quantities[$productId] ?? 0;
     }
 }
