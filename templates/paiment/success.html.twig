@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi{% endblock %}
+
+{% block body %}
+    <div class="container text-center mt-5">
+        <h1 class="text-success"><i class="fas fa-check-circle"></i> Merci pour votre fidélité !</h1>
+        <p class="lead mt-3">Votre paiement a été effectué avec succès.</p>
+
+        <a href="{{ path('app_product_list_product') }}" class="btn btn-primary mt-4">
+            Revenir au catalogue
+        </a>
+    </div>
+{% endblock %}
