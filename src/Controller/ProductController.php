@@ -12,17 +12,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[Route('/product', name: 'app_product_')]
 final class ProductController extends AbstractController
 {
     private ProductRepository $repository;
+    private EntityManagerInterface $em;
     private EntityManager $entityManager;
 
-    public function __construct(private ManagerRegistry $doctrine)
+    public function __construct(private ManagerRegistry $doctrine, EntityManagerInterface $em)
     {
         $this->entityManager = $doctrine->getManager();
         $this->repository = $this->entityManager->getRepository(Product::class);
+        $this->em = $em;
     }
 
     #[Route('/list', name: 'list_product')]
@@ -34,9 +37,11 @@ final class ProductController extends AbstractController
             if (!$product) {
                 throw $this->createNotFoundException('Product not found');
             }
+            $categories = $this->em->getRepository(Category::class)->findAll();
             return $this->render(
                 'product/show.html.twig', [
                     'product' => $product,
+                    'categories' => $categories
                 ]
             );
         }
@@ -70,6 +75,22 @@ final class ProductController extends AbstractController
         }
 
         $product->addRelation($season);
+        $this->entityManager->flush();
+
+        return $this->redirectToRoute('list_product');
+    }
+
+    #[Route('/assignCategory/{productId}/{categoryId}', name: 'assign_category')]
+    public function assignCategory(int $productId, int $categoryId): Response
+    {
+        $product = $this->entityManager->getRepository(Product::class)->find($productId);
+        $category = $this->entityManager->getRepository(Category::class)->find($categoryId);
+
+        if (!$product || !$category) {
+            throw $this->createNotFoundException('Product or Category not found');
+        }
+
+        $product->addRelation($category);
         $this->entityManager->flush();
 
         return $this->redirectToRoute('list_product');
