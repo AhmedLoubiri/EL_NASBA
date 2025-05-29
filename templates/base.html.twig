@@ -129,7 +129,7 @@
               {% for category in categories %}
               <li><a class="dropdown-item"
                   href="{{ path('app_product_list_product_by_category', {'id': category.id}) }}">{{
-                  category.name }}</a></li>
+                  category.label }}</a></li>
               {% endfor %}
               {% endif %}
             </ul>
