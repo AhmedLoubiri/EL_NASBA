@@ -1,132 +1,134 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ product.label }} - E-Commerce{% endblock %}
+{% block title %}{{ product.label }} - EL_NASBA{% endblock %}
 
 {% block body %}
-    <div class="container my-5">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('app_products') }}">Produits</a></li>
-                <li class="breadcrumb-item active">{{ product.label }}</li>
-            </ol>
-        </nav>
+<div class="container my-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+      <li class="breadcrumb-item"><a href="{{ path('app_product_app_products') }}">Produits</a></li>
+      <li class="breadcrumb-item active">{{ product.label }}</li>
+    </ol>
+  </nav>
 
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="product-images">
+        <img src="/placeholder.svg?height=500&width=500" class="img-fluid rounded mb-3" alt="{{ product.label }}">
         <div class="row">
-            <div class="col-lg-6">
-                <div class="product-images">
-                    <img src="/placeholder.svg?height=500&width=500" class="img-fluid rounded mb-3" alt="{{ product.label }}">
-                    <div class="row">
-                        <div class="col-3">
-                            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 1">
-                        </div>
-                        <div class="col-3">
-                            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 2">
-                        </div>
-                        <div class="col-3">
-                            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 3">
-                        </div>
-                        <div class="col-3">
-                            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 4">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <h1 class="mb-3">{{ product.label }}</h1>
-
-                <!-- Categories -->
-                <div class="mb-3">
-                    {% for category in product.categories %}
-                        <span class="badge bg-primary me-1">{{ category.name }}</span>
-                    {% endfor %}
-                </div>
-
-                <!-- Price -->
-                <div class="mb-4">
-                    <span class="price display-6">{{ product.prix }}€</span>
-                </div>
-
-                <!-- Description -->
-                <div class="mb-4">
-                    <h5>Description</h5>
-                    <p>{{ product.description }}</p>
-                </div>
-
-                <!-- Add to Cart -->
-                {% if app.user %}
-                    {% if product.stock > 0 %}
-                        <form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}" class="mb-4">
-                            <div class="row align-items-end">
-                                <div class="col-md-3">
-                                    <label for="quantity" class="form-label">Quantité</label>
-                                    <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-cart-plus"></i> Ajouter au panier
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    {% endif %}
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <a href="{{ path('app_login') }}">Connectez-vous</a> pour ajouter ce produit à votre panier.
-                    </div>
-                {% endif %}
-
-                <!-- Product Details -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5><i class="fas fa-info-circle"></i> Détails du produit</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li><strong>Référence:</strong> {{ product.id }}</li>
-                            <li><strong>Catégories:</strong>
-                                {% for category in product.categories %}
-                                    {{ category.name }}{% if not loop.last %}, {% endif %}
-                                {% endfor %}
-                            </li>
-                            {% if product.seasons is defined and product.seasons|length > 0 %}
-                                <li><strong>Saisons:</strong>
-                                    {% for season in product.seasons %}
-                                        {{ season.name }}{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
+          <div class="col-3">
+            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 1">
+          </div>
+          <div class="col-3">
+            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 2">
+          </div>
+          <div class="col-3">
+            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 3">
+          </div>
+          <div class="col-3">
+            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 4">
+          </div>
         </div>
-
-        <!-- Related Products -->
-        {% if related_products is defined and related_products|length > 0 %}
-            <section class="mt-5">
-                <h3>Produits similaires</h3>
-                <div class="row">
-                    {% for related_product in related_products %}
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="card product-card h-100">
-                                <img src="/placeholder.svg?height=200&width=250" class="product-image" alt="{{ related_product.label }}">
-                                <div class="card-body">
-                                    <h6 class="card-title">{{ related_product.label }}</h6>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="price">{{ related_product.prix }}€</span>
-                                        <a href="{{ path('app_product_show', {'id': related_product.id}) }}" class="btn btn-outline-primary btn-sm">
-                                            Voir
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </section>
-        {% endif %}
+      </div>
     </div>
+
+    <div class="col-lg-6">
+      <h1 class="mb-3">{{ product.label }}</h1>
+
+      <!-- Categories -->
+      <div class="mb-3">
+        {% for category in product.categories %}
+        <span class="badge bg-primary me-1">{{ category.name }}</span>
+        {% endfor %}
+      </div>
+
+      <!-- Price -->
+      <div class="mb-4">
+        <span class="price display-6">{{ product.prix }}dt</span>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-4">
+        <h5>Description</h5>
+        <p>{{ product.description }}</p>
+      </div>
+
+      <!-- Add to Cart -->
+      {% if app.user %}
+      {# {% if product.stock > 0 %} #}
+      <form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}" class="mb-4">
+        <div class="row align-items-end">
+          <div class="col-md-3">
+            <label for="quantity" class="form-label">Quantité</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1"
+              max="{#{{ product.stock }}#}">
+          </div>
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-cart-plus"></i> Ajouter au panier
+            </button>
+          </div>
+        </div>
+      </form>
+      {# {% endif %} #}
+      {% else %}
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <a href="{{ path('app_login') }}">Connectez-vous</a> pour ajouter ce produit à votre panier.
+      </div>
+      {% endif %}
+
+      <!-- Product Details -->
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-info-circle"></i> Détails du produit</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li><strong>Référence:</strong> {{ product.id }}</li>
+            <li><strong>Catégories:</strong>
+              {% for category in product.categories %}
+              {{ category.name }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </li>
+            {% if product.seasons is defined and product.seasons|length > 0 %}
+            <li><strong>Saisons:</strong>
+              {% for season in product.seasons %}
+              {{ season.name }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products is defined and related_products|length > 0 %}
+  <section class="mt-5">
+    <h3>Produits similaires</h3>
+    <div class="row">
+      {% for related_product in related_products %}
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card product-card h-100">
+          <img src="/placeholder.svg?height=200&width=250" class="product-image" alt="{{ related_product.label }}">
+          <div class="card-body">
+            <h6 class="card-title">{{ related_product.label }}</h6>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="price">{{ related_product.prix }}dt</span>
+              <a href="{{ path('app_product_show_product', {'id': related_product.id}) }}"
+                class="btn btn-outline-primary btn-sm">
+                Voir
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
 {% endblock %}

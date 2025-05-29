@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Produits - E-Commerce{% endblock %}
+{% block title %}Produits - EL_NASBA{% endblock %}
 
 {% block body %}
 <div class="container my-5">
@@ -90,7 +90,7 @@
               </div>
 
               <div class="d-flex justify-content-between align-items-center">
-                <span class="price">{{ product.prix }}€</span>
+                <span class="price">{{ product.prix }}dt</span>
                 <div class="btn-group">
                   <a href="{{ path('app_product_show_product', {'id': product.id}) }}"
                     class="btn btn-outline-primary btn-sm">
