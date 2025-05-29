@@ -114,6 +114,29 @@ final class ProductController extends AbstractController
     public function products(Request $request): Response
     {
         $queryBuilder = $this->repository->createQueryBuilder('p');
+        $currentSeason = null;
+        $filterDate = null;
+
+        // FILTRAGE PAR DATE - AFFICHER SEULEMENT LES PRODUITS DE LA SAISON CORRESPONDANTE
+        if ($request->query->get('filter_date')) {
+            try {
+                $filterDate = new \DateTime($request->query->get('filter_date'));
+                $currentSeason = $this->getSeasonByDate($filterDate);
+
+                if ($currentSeason) {
+                    // Filtrer les produits qui appartiennent à cette saison
+                    $queryBuilder->join('p.relation', 's')
+                        ->andWhere('s.id = :season_id')
+                        ->setParameter('season_id', $currentSeason->getId());
+                } else {
+                    // Aucune saison trouvée pour cette date = aucun produit
+                    $queryBuilder->andWhere('1 = 0'); // Condition impossible pour retourner 0 résultats
+                }
+            } catch (\Exception $e) {
+                // Date invalide = aucun produit
+                $queryBuilder->andWhere('1 = 0');
+            }
+        }
 
         // Filter by categories
         if ($request->query->get('categories')) {
@@ -121,6 +144,14 @@ final class ProductController extends AbstractController
             $queryBuilder->join('p.categories', 'c')
                 ->andWhere('c.id IN (:categories)')
                 ->setParameter('categories', $categoryIds);
+        }
+
+        // Filter by specific seasons
+        if ($request->query->get('seasons')) {
+            $seasonIds = explode(',', $request->query->get('seasons'));
+            $queryBuilder->join('p.relation', 'season')
+                ->andWhere('season.id IN (:seasons)')
+                ->setParameter('seasons', $seasonIds);
         }
 
         if ($request->query->get('price_min')) {
@@ -135,17 +166,17 @@ final class ProductController extends AbstractController
 
         $sort = $request->query->get('sort', 'label');
         switch ($sort) {
-        case 'price_asc':
-            $queryBuilder->orderBy('p.prix', 'ASC');
-            break;
-        case 'price_desc':
-            $queryBuilder->orderBy('p.prix', 'DESC');
-            break;
-        case 'newest':
-            $queryBuilder->orderBy('p.id', 'DESC');
-            break;
-        default:
-            $queryBuilder->orderBy('p.label', 'ASC');
+            case 'price_asc':
+                $queryBuilder->orderBy('p.prix', 'ASC');
+                break;
+            case 'price_desc':
+                $queryBuilder->orderBy('p.prix', 'DESC');
+                break;
+            case 'newest':
+                $queryBuilder->orderBy('p.id', 'DESC');
+                break;
+            default:
+                $queryBuilder->orderBy('p.label', 'ASC');
         }
 
         $products = $queryBuilder->getQuery()->getResult();
@@ -154,9 +185,39 @@ final class ProductController extends AbstractController
 
         return $this->render(
             'product/index.html.twig', [
-            'products' => $products,
-            'categories' => $categories,
-            'seasons' => $seasons,
+                'products' => $products,
+                'categories' => $categories,
+                'seasons' => $seasons,
+                'current_season' => $currentSeason,
+                'filter_date' => $request->query->get('filter_date'),
+                'total_products' => count($products),
+            ]
+        );
+    }
+
+
+
+    #[Route('/season/{id}', name: 'products_by_season')]
+    public function productsBySeason(Season $season): Response
+    {
+        $queryBuilder = $this->repository->createQueryBuilder('p')
+            ->join('p.relation', 's')
+            ->where('s.id = :season_id')
+            ->setParameter('season_id', $season->getId())
+            ->orderBy('p.label', 'ASC');
+
+        $products = $queryBuilder->getQuery()->getResult();
+        $categories = $this->entityManager->getRepository(Category::class)->findAll();
+        $seasons = $this->entityManager->getRepository(Season::class)->findAll();
+
+        return $this->render(
+            'product/index.html.twig', [
+                'products' => $products,
+                'categories' => $categories,
+                'seasons' => $seasons,
+                'current_season' => $season,
+                'selected_season' => $season,
+                'total_products' => count($products),
             ]
         );
     }
@@ -169,8 +230,8 @@ final class ProductController extends AbstractController
 
         return $this->render(
             'product/show.html.twig', [
-            'product' => $product,
-            'related_products' => $relatedProducts,
+                'product' => $product,
+                'related_products' => $relatedProducts,
             ]
         );
     }
@@ -190,11 +251,38 @@ final class ProductController extends AbstractController
 
         return $this->render(
             'product/index.html.twig', [
-            'products' => $products,
-            'categories' => $categories,
-            'seasons' => $seasons,
-            'current_category' => $category,
+                'products' => $products,
+                'categories' => $categories,
+                'seasons' => $seasons,
+                'current_category' => $category,
+                'total_products' => count($products),
             ]
         );
+    }
+
+    /**
+     * Trouve la saison qui correspond à une date donnée
+     * La date doit être entre date_debut et date_fin de la saison
+     */
+    private function getSeasonByDate(\DateTime $date): ?Season
+    {
+        $seasonRepository = $this->entityManager->getRepository(Season::class);
+
+        $queryBuilder = $seasonRepository->createQueryBuilder('s')
+            ->where('s.date_debut <= :date')
+            ->andWhere('s.date_fin >= :date')
+            ->setParameter('date', $date->format('Y-m-d'))
+            ->setMaxResults(1);
+
+        return $queryBuilder->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Vérifie si une saison est actuellement active
+     */
+    private function isSeasonActive(Season $season): bool
+    {
+        $today = new \DateTime();
+        return $season->getDateDebut() <= $today && $season->getDateFin() >= $today;
     }
 }

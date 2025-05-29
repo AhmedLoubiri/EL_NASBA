@@ -38,21 +38,6 @@
           </div>
         </div>
 
-        <!-- Season Filter -->
-        {% if seasons is defined %}
-        <div class="mb-4">
-          <h6>Saisons</h6>
-          {% for season in seasons %}
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="{{ season.id }}" id="season{{ season.id }}">
-            <label class="form-check-label" for="season{{ season.id }}">
-              {{ season.name }}
-            </label>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-
         <button class="btn btn-light btn-sm w-100">Appliquer les filtres</button>
       </div>
     </div>
