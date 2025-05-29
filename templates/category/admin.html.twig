@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration des Catégories - E-Commerce{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-cog"></i> Administration des Catégories</h2>
+            <div>
+                <a href="{{ path('app_category_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Nouvelle catégorie
+                </a>
+                <a href="{{ path('app_categories') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-eye"></i> Vue publique
+                </a>
+            </div>
+        </div>
+
+        {% if categories|length > 0 %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Nb Produits</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for category in categories %}
+                                <tr>
+                                    <td>{{ category.id }}</td>
+                                    <td>
+                                        <strong>{{ category.label }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ category.products|length }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('app_category_show', {'id': category.id}) }}"
+                                               class="btn btn-outline-primary btn-sm" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_category_edit', {'id': category.id}) }}"
+                                               class="btn btn-outline-warning btn-sm" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}"
+                                                  class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                <h4>Aucune catégorie</h4>
+                <p class="text-muted">Commencez par créer votre première catégorie.</p>
+                <a href="{{ path('app_category_new') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Créer une catégorie
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
