@@ -18,7 +18,7 @@
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="{{ category.id }}" id="category{{ category.id }}">
             <label class="form-check-label" for="category{{ category.id }}">
-              {{ category.name }}
+              {{ category.label }}
             </label>
           </div>
           {% endfor %}
@@ -77,7 +77,7 @@
         {% for product in products %}
         <div class="col-lg-4 col-md-6 mb-4">
           <div class="card product-card h-100">
-            <img src="/placeholder.svg?height=250&width=300" class="product-image" alt="{{ product.label }}">
+            <img src="{{ asset('pics/' ~ product.ImageUrl) }}" class="product-image" alt="{{ product.label }}">
             <div class="card-body">
               <h5 class="card-title">{{ product.label }}</h5>
               <p class="card-text">{{ product.description|slice(0, 100) }}...</p>
@@ -85,7 +85,7 @@
               <!-- Categories -->
               <div class="mb-2">
                 {% for category in product.categories %}
-                <span class="badge bg-secondary me-1">{{ category.name }}</span>
+                <span class="badge bg-secondary me-1">{{ category.label }}</span>
                 {% endfor %}
               </div>
 

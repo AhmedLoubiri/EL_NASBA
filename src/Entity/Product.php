@@ -45,6 +45,9 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
+    #[ORM\Column(length: 55, nullable: true)]
+    private ?string $quantité = null;
+
     public function __construct()
     {
         $this->relation = new ArrayCollection();
@@ -176,6 +179,18 @@ class Product
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getQuantité(): ?string
+    {
+        return $this->quantité;
+    }
+
+    public function setQuantité(?string $quantité): static
+    {
+        $this->quantité = $quantité;
 
         return $this;
     }
