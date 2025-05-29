@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Échec du paiement{% endblock %}
+
+{% block body %}
+    <div class="container text-center mt-5">
+        <h1 class="text-danger"><i class="fas fa-times-circle"></i> Paiement échoué</h1>
+        <p class="lead mt-3">Une erreur s'est produite pendant le processus de paiement.</p>
+        <p>Veuillez réessayer ou contacter notre support si le problème persiste.</p>
+
+        <a href="{{ path('app_payment') }}" class="btn btn-warning mt-4">
+            Réessayer le paiement
+        </a>
+        <a href="{{ path('app_product_list_product') }}" class="btn btn-secondary mt-2">
+            Revenir au catalogue
+        </a>
+    </div>
+{% endblock %}

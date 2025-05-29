@@ -1,20 +1,74 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CommandeController!{% endblock %}
+{% block title %}Mes Commandes {% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container my-5">
+        <h2><i class="fas fa-box"></i> Mes Commandes</h2>
+        {% if commandes|length > 0 %}
+            <div class="row">
+                {% for commande in commandes %}
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">Commande n°{{ commande.id }}</h5>
+                                    <small class="text-muted">{{ commande.getDateCommande()|date('d/m/Y H:i;s') }}</small>
+                                </div>
+                                <div>
+                                    {% if commande.getEtat() == 'En attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% elseif commande.getEtat() == 'En cours' %}
+                                        <span class="badge bg-info">En cours</span>
+                                    {% elseif commande.getEtat() == 'Expédiée' %}
+                                        <span class="badge bg-primary">Expédiée</span>
+                                    {% elseif commande.getEtat() == 'delivered' %}
+                                        <span class="badge bg-success">Livrée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ commande.getEtat() }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h6>Produits commandés:</h6>
+                                        {% for product in commande.getProducts() %}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="/placeholder.svg?height=50&width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
+                                                <div>
+                                                    <strong>{{ product.getLabel() }}</strong><br>S
+                                                    <small class="text-muted">{{ product.getPrix() }}€</small>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <h6>Total: {{ commande.getPrixTotal() }}€</h6>
+                                        <a href="{{ path('commandes.detail', {'id': commande.id}) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Voir détails
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div id="delivery-container">
+                    <img id="delivery-guy" src="{{ asset('assets/images/moto.png') }}" alt="Delivery Guy">
+                    <div id="trail"></div>
+                </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Symfony project/EL_NASBA/src/Controller/CommandeController.php</code></li>
-        <li>Your template at <code>C:/Symfony project/EL_NASBA/templates/commande/index.html.twig</code></li>
-    </ul>
-</div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h4>Aucune commande</h4>
+                <p class="text-muted">Vous n'avez pas encore passé de commande</p>
+                <a href="{{ path('app_product_list_product') }}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Commencer mes achats
+                </a>
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

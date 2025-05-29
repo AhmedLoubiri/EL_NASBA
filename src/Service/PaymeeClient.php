@@ -3,43 +3,41 @@ namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class FlouciService
+class PaymeeClient
 {
-private string $appId;
-private string $appSecret;
-private HttpClientInterface $client;
+    private $client;
+    private $apiKey;
+    private $merchantCode;
 
-public function __construct(HttpClientInterface $client)
-{
-$this->appId = $_ENV['FLOUCI_APP_ID'];
-$this->appSecret = $_ENV['FLOUCI_APP_SECRET'];
-$this->client = $client;
-}
+    public function __construct(HttpClientInterface $client, string $apiKey, string $merchantCode)
+    {
+        $this->client = $client;
+        $this->apiKey = $apiKey;
+        $this->merchantCode = $merchantCode;
+    }
 
-public function initiatePayment(array $commandeData): ?string
-{
-$response = $this->client->request('POST', 'https://developers.flouci.com/api/generate_payment', [
-'headers' => [
-'Content-Type' => 'application/json',
-'apppublic' => $this->appId,
-'appsecret' => $this->appSecret,
-],
-'json' => [
-'app_token' => $this->appId,
-'amount' => $commandeData['amount'],
-'redirect_url' => $commandeData['redirect_url'],
-'webhook_url' => $commandeData['webhook_url'],
-'client' => [
-'email' => $commandeData['email'],
-'phone_number' => $commandeData['phone'],
-'first_name' => $commandeData['first_name'],
-'last_name' => $commandeData['last_name'],
-],
-]
-]);
+    public function createPayment(float $amount, string $note, string $backUrl): ?string
+    {
+        $response = $this->client->request('POST', 'https://sandbox.paymee.tn/api/v1/payments/create', [
+            'headers' => [
+                'Authorization' => 'Token ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'vendor' => $this->merchantCode,
+                'amount' => $amount,
+                'note' => $note,
+                'mode' => 'card',
+                'back_url' => $backUrl,
+            ],
+        ]);
 
-$data = $response->toArray(false);
+        $statusCode = $response->getStatusCode();
+        if ($statusCode === 200) {
+            $data = $response->toArray();
+            return $data['payment_url'] ?? null;
+        }
 
-return $data['payment_url'] ?? null;
-}
+        return null;
+    }
 }

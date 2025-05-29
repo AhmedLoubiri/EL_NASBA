@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la Commande n°{{ commande.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4 text-primary">Commande n°{{ commande.id }}</h1>
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <strong>Date :</strong> {{ commande.dateCommande|date('d/m/Y H:i') }}<br>
+                <strong>Etat :</strong>
+                <span class="badge
+                {% if commande.getEtat() == 'en attente' %}bg-warning text-dark
+                {% elseif commande.getEtat() == 'expédiée' %}bg-info
+                {% elseif commande.getEtat() == 'annulée' %}bg-danger
+                {% else %}bg-success{% endif %}">
+                {{ commande.getEtat()|capitalize }}
+            </span>
+            </div>
+            <div class="card-body">
+                <p><strong>Utilisateur :</strong> {{ commande.getUser().getUserIdentifier() }}</p>
+                <p><strong>Prix Total :</strong> {{ commande.getPrixTotal() }} €</p>
+
+                {% if commande.products is defined %}
+                    <hr>
+                    <h5>Articles :</h5>
+                    <ul class="list-group">
+                        {% for article in commande.products%}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ article.getLabel() }} <span>{{ article.getPrix() }} €</span>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item text-muted">Aucun article associé</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="card-footer text-end">
+                <a href="{{ path('app_orders') }}" class="btn btn-secondary">Retour</a>
+                <a href="{{ path('commande_edit', {'id': commande.getId()}) }}" class="btn btn-primary">Modifier</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
