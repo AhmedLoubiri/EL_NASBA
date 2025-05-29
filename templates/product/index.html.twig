@@ -18,7 +18,7 @@
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="{{ category.id }}" id="category{{ category.id }}">
             <label class="form-check-label" for="category{{ category.id }}">
-              {{ category.label }}
+              {{ category.name }}
             </label>
           </div>
           {% endfor %}
@@ -37,6 +37,21 @@
             </div>
           </div>
         </div>
+
+        <!-- Season Filter -->
+        {% if seasons is defined %}
+        <div class="mb-4">
+          <h6>Saisons</h6>
+          {% for season in seasons %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="{{ season.id }}" id="season{{ season.id }}">
+            <label class="form-check-label" for="season{{ season.id }}">
+              {{ season.name }}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
         <button class="btn btn-light btn-sm w-100">Appliquer les filtres</button>
       </div>
@@ -62,7 +77,7 @@
         {% for product in products %}
         <div class="col-lg-4 col-md-6 mb-4">
           <div class="card product-card h-100">
-            <img src="{{ asset('pics/' ~ product.ImageUrl) }}"class="product-image" alt="{{ product.label }}">
+            <img src="/placeholder.svg?height=250&width=300" class="product-image" alt="{{ product.label }}">
             <div class="card-body">
               <h5 class="card-title">{{ product.label }}</h5>
               <p class="card-text">{{ product.description|slice(0, 100) }}...</p>
@@ -70,7 +85,7 @@
               <!-- Categories -->
               <div class="mb-2">
                 {% for category in product.categories %}
-                <span class="badge bg-secondary me-1">{{ category.label }}</span>
+                <span class="badge bg-secondary me-1">{{ category.name }}</span>
                 {% endfor %}
               </div>
 
