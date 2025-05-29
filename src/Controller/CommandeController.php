@@ -8,6 +8,7 @@ use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -142,17 +143,39 @@ final class CommandeController extends AbstractController
 
         return $this->redirectToRoute('user_commandes');
     }
-    #[Route('/edit/{id}', name: 'commande_user_edit')]
+    #[Route('/commande/edit/{id}', name: 'commande_user_edit')]
     public function userEditCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
-
         $form = $this->createForm(CommandeForm::class, $commande);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            return $this->redirectToRoute('admin_commandes');
+            $this->addFlash('success', 'La commande a été modifiée avec succès.');
+            return $this->redirectToRoute('app_orders');
         }
-        return $this->render('commande/edit.html.twig', ['form' => $form->createView()]);
+
+        return $this->render('commande/edit.html.twig', [
+            'form' => $form->createView(),
+            'commande' => $commande,
+        ]);
+    }
+    #[Route('/commande/annuler/{id}', name: 'commande_cancel', methods: ['GET'])]
+    public function cancel(Commande $commande, EntityManagerInterface $entityManager): RedirectResponse
+    {
+        // Vérifie si la commande est encore "En attente"
+        if ($commande->getEtat() !== 'En attente') {
+            $this->addFlash('warning', 'Seules les commandes en attente peuvent être supprimées.');
+            return $this->redirectToRoute('app_orders');
+        }
+
+        // Supprimer la commande de la base
+        $entityManager->remove($commande);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La commande a été supprimée avec succès.');
+
+        return $this->redirectToRoute('app_orders');
     }
 
     #[Route('/{id<\d+>}', name: 'commandes.detail')]

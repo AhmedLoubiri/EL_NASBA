@@ -10,7 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class CategoryType extends AbstractType
+class CategoryForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

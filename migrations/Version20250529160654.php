@@ -20,9 +20,8 @@ final class Version20250529160654 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql(<<<'SQL'
-            ALTER TABLE commande ADD date_commande DATE NOT NULL
-        SQL);
+
+
         $this->addSql(<<<'SQL'
             ALTER TABLE product ADD quantité VARCHAR(55) DEFAULT NULL
         SQL);
