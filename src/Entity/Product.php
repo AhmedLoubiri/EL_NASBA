@@ -194,4 +194,9 @@ class Product
 
         return $this;
     }
+    public function isInStock(): bool
+    {
+        return $this->quantité !== null && $this->quantité > 0;
+    }
+
 }
