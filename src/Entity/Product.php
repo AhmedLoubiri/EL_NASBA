@@ -45,8 +45,8 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 55, nullable: true)]
-    private ?string $quantité = null;
+    #[ORM\Column(nullable: true)]
+    private ?int $quantité = null;
 
     public function __construct()
     {
@@ -183,12 +183,12 @@ class Product
         return $this;
     }
 
-    public function getQuantité(): ?string
+    public function getQuantité(): ?int
     {
         return $this->quantité;
     }
 
-    public function setQuantité(?string $quantité): static
+    public function setQuantité(?int $quantité): static
     {
         $this->quantité = $quantité;
 
