@@ -85,7 +85,6 @@ final class CommandeController extends AbstractController
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
         $availableProducts = $commande->getProducts()->toArray();
-
         $form = $this->createForm(CommandeForm::class, $commande, [
             'panier_products' => $availableProducts,
         ]);
