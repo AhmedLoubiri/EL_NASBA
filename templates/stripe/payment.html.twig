@@ -1,0 +1,215 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement - EL_NASBA{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+          <li class="breadcrumb-item"><a href="{{ path('app_cart') }}">Panier</a></li>
+          <li class="breadcrumb-item"><a href="{{ path('app_stripe_checkout', {'cartId': panier.id}) }}">Commande</a>
+          </li>
+          <li class="breadcrumb-item active">Paiement</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Checkout Steps -->
+    <div class="col-12 mb-4">
+      <div class="checkout-steps">
+        <div class="step completed">
+          <div class="step-number"><i class="fas fa-check"></i></div>
+          <div class="step-title">Informations</div>
+        </div>
+        <div class="step-line completed"></div>
+        <div class="step active">
+          <div class="step-number">2</div>
+          <div class="step-title">Paiement</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-title">Confirmation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Payment Methods -->
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h4><i class="fas fa-credit-card"></i> Méthode de paiement</h4>
+        </div>
+        <div class="card-body">
+          <form id="payment-form" action="{{ path('app_stripe_checkout', {'cartId': panier.id}) }}" method="post">
+            <!-- Payment Method Selection -->
+            <div class="mb-4">
+              <h6>Choisissez votre méthode de paiement:</h6>
+
+              <!-- Credit Card -->
+              <div class="payment-method mb-3">
+                <input type="radio" class="btn-check" name="payment_method" id="credit_card" value="credit_card"
+                  checked>
+                <label class="btn btn-outline-primary w-100 text-start" for="credit_card">
+                  <div class="d-flex align-items-center">
+                    <i class="fas fa-credit-card fa-2x me-3"></i>
+                    <div>
+                      <strong>Carte bancaire - Stripe</strong>
+                      <br><small class="text-muted">Visa, Mastercard, American Express</small>
+                    </div>
+                    <div class="ms-auto">
+                      <img src="/placeholder.svg?height=30&width=50" alt="Visa" class="me-1">
+                      <img src="/placeholder.svg?height=30&width=50" alt="Mastercard" class="me-1">
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+            </div>
+
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+              <label class="form-check-label" for="terms">
+                J'accepte les <a href="#" target="_blank">conditions générales de vente</a> et la
+                <a href="#" target="_blank">politique de confidentialité</a> *
+              </label>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('payment') }}">
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-receipt"></i> Récapitulatif final</h5>
+        </div>
+        <div class="card-body">
+          {% if panier and panier.product|length > 0 %}
+          {% set subtotal = 0 %}
+          {% for product in items %}
+          {% set subtotal = subtotal + product.price * product.quantity %}
+          {% endfor %}
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Sous-total ({{ panier.product|length }} articles):</span>
+            <span>{{ subtotal }}dt</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Livraison:</span>
+            {% if subtotal < 50 %} {% set shipping_cost=9.99 %} {% else %} {% set shipping_cost=0 %} {% endif %} <span
+              id="shipping-cost">{{ shipping_cost }}dt</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>TVA (19%):</span>
+            <span id="tax-amount">{{ ((subtotal + shipping_cost) * 0.19)|round(2) }}dt</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-3">
+            <strong>Total à payer:</strong>
+            <strong class="text-success" id="final-total">{{ ((subtotal + shipping_cost) * 1.19)|round(2) }}dt</strong>
+          </div>
+
+          <button type="submit" form="payment-form" class="btn btn-success w-100 btn-lg">
+            <i class="fas fa-lock"></i> <span id="pay-button-text">Payer maintenant</span>
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Security badges -->
+      <div class="text-center mt-3">
+        <img src="/placeholder.svg?height=40&width=60" alt="SSL Secured" class="me-2">
+        <img src="/placeholder.svg?height=40&width=60" alt="Verified" class="me-2">
+        <img src="/placeholder.svg?height=40&width=60" alt="Secure Payment">
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .checkout-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .step.active .step-number {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .step.completed .step-number {
+    background-color: #198754;
+    color: white;
+  }
+
+  .step-title {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .step.active .step-title,
+  .step.completed .step-title {
+    color: #0d6efd;
+    font-weight: bold;
+  }
+
+  .step-line {
+    width: 100px;
+    height: 2px;
+    background-color: #e9ecef;
+    margin: 0 20px;
+    margin-top: -20px;
+  }
+
+  .step-line.completed {
+    background-color: #198754;
+  }
+
+  .payment-method label {
+    transition: all 0.3s ease;
+  }
+
+  .payment-method input:checked+label {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+</style>
+{% endblock %}

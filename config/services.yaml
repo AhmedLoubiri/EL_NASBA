@@ -1,23 +1,24 @@
 parameters:
-    env(PAYMEE_API_KEY): 'ba862dff8b4f5c8d9f4ef09c89b183a703d4d1e3'
-    env(PAYMEE_MERCHANT_CODE): '3845'
+  env(PAYMEE_API_KEY): "ba862dff8b4f5c8d9f4ef09c89b183a703d4d1e3"
+  env(PAYMEE_MERCHANT_CODE): "3845"
+  stripe_secret_key: "%env(STRIPE_SECRET_KEY)%"
 
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        public: false
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
 
-    # Services généraux dans src/
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+  # Services généraux dans src/
+  App\:
+    resource: "../src/"
+    exclude:
+      - "../src/DependencyInjection/"
+      - "../src/Entity/"
+      - "../src/Kernel.php"
 
-    # Service spécifique PaymeeClient avec injection explicite des arguments
-    App\Service\PaymeeClient:
-        arguments:
-            $apiKey: '%env(PAYMEE_API_KEY)%'
-            $merchantCode: '%env(PAYMEE_MERCHANT_CODE)%'
+  # Service spécifique PaymeeClient avec injection explicite des arguments
+  App\Service\PaymeeClient:
+    arguments:
+      $apiKey: "%env(PAYMEE_API_KEY)%"
+      $merchantCode: "%env(PAYMEE_MERCHANT_CODE)%"

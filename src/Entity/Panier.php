@@ -69,7 +69,6 @@ class Panier
         if (!$this->product->contains($product)) {
             $this->product->add($product);
         }
-
         return $this;
     }
 

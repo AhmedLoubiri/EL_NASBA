@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class CartController extends AbstractController
 {
@@ -67,7 +68,8 @@ class CartController extends AbstractController
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'total' => $total,
-            'cart_count' => count($cartItems)
+            'cart_count' => count($cartItems),
+            'cart_id' => $user->getPanier()->getId()
             ]
         );
     }
@@ -143,10 +145,12 @@ class CartController extends AbstractController
         }
 
         if ($quantity > $product->getQuantité()) {
-            return new JsonResponse([
+            return new JsonResponse(
+                [
                 'success' => false,
                 'message' => 'Stock insuffisant. Quantité max: ' . $product->getQuantité()
-            ], 400);
+                ], 400
+            );
         }
 
         if ($user) {
