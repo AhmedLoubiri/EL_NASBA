@@ -147,11 +147,9 @@ final class CommandeController extends AbstractController
             $this->addFlash('error', 'Veuillez vous connecter pour passer une commande.');
             return $this->redirectToRoute('app_login');
         }
-
         $panier = $user->getPanier();
         $quantities = $session->get('user_cart_quantities', []);
         $productsInCart = [];
-
         if ($panier) {
             foreach ($panier->getProduct() as $product) {
                 $id = $product->getId();
@@ -161,7 +159,6 @@ final class CommandeController extends AbstractController
                 }
             }
         }
-
         if (empty($productsInCart)) {
             $this->addFlash('warning', 'Votre panier est vide.');
             return $this->redirectToRoute('app_cart');
@@ -184,15 +181,12 @@ final class CommandeController extends AbstractController
                     $this->addFlash('error', "Stock insuffisant pour : " . $product->getLabel());
                     return $this->redirectToRoute('app_cart');
                 }
-
                 $product->setQuantité($product->getQuantité() - $qty);
                 $total += $product->getPrix() * $qty;
-
                 // Retirer du panier
                 $user->getPanier()->removeProduct($product);
                 unset($quantities[$id]);
             }
-
             $commande->setUser($user);
             $commande->setEtat('En attente');
             $commande->setPrixTotal($total);
