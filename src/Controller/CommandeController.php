@@ -44,7 +44,6 @@ final class CommandeController extends AbstractController
         $oldEtat = $commande->getEtat();
         if ($request->isMethod('POST')) {
             $etat = $request->request->get('etat');
-
             if (!in_array($etat, ['En attente', 'En cours', 'Expédiée', 'Annulée'])) {
                 $this->addFlash('error', 'État invalide.');
                 return $this->redirectToRoute('admin_edit_commande', ['id' => $id]);
@@ -68,9 +67,14 @@ final class CommandeController extends AbstractController
             $this->addFlash('success', 'État de la commande mis à jour.');
             return $this->redirectToRoute('admin.commandes.list');
         }
+        $etats = ['En attente', 'En cours', 'Expédiée', 'Annulée'];
+        if( $oldEtat === 'En cours') {
+            $etats = ['En cours','Annulée'];
+
+        }
         return $this->render('commande/adminEdit.html.twig', [
             'commande' => $commande,
-            'etats' => ['En attente', 'En cours', 'Expédiée', 'Annulée']
+            'etats' => $etats,
         ]);
     }
 
@@ -115,21 +119,17 @@ final class CommandeController extends AbstractController
             ]
         );
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $total = 0;
             $productQuantities = $commande->getProductQuantities();
-
             foreach ($commande->getProducts() as $product) {
                 $productId = $product->getId();
                 $qty = $productQuantities[$productId] ?? 1; // Par défaut 1 si pas défini
                 $total += $product->getPrix() * $qty;
             }
-
             if ($total < 50) {
                 $total += 9.99;
             }
-
             $commande->setPrixTotal($total);
             $em->flush();
 
