@@ -9,6 +9,7 @@ use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,26 +66,38 @@ final class CommandeController extends AbstractController
             'commandes' => $commandes,
         ]);
     }
-    #[Route('/edit/{id}', name: 'commande_edit')]
+    #[Route('/commande/annuler/{id}', name: 'user.annuler.commande')]
+    public function annulerCommande(Commande $commande, EntityManagerInterface $em, Request $request): RedirectResponse
+    {
+        $user = $this->getUser();
+        if (!$user || $commande->getUser() !== $user) {
+            throw new AccessDeniedException('Vous ne pouvez pas annuler cette commande.');
+        }
+        if (in_array($commande->getEtat(), ['Livrée', 'Annulée'])) {
+            $this->addFlash('warning', 'Cette commande ne peut pas être annulée.');
+            return $this->redirectToRoute('app_orders');
+        }
+        $commande->setEtat('Annulée');
+        $em->flush();
+        $this->addFlash('success', 'Votre commande a été annulée avec succès.');
+        return $this->redirectToRoute('app_orders');
+    }
+    #[Route('/edit/{id}', name: 'commande.edit')]
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(CommandeForm::class, $commande);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Optional: update total price if products changed
             $total = 0;
             foreach ($commande->getProducts() as $product) {
-                $total += $product->getPrix(); // Adjust as needed
+                $total += $product->getPrix();
             }
             $commande->setPrixTotal($total);
-
             $em->flush();
-
             $this->addFlash('success', 'Commande modifiée avec succès.');
             return $this->redirectToRoute('app_orders');
         }
-
         return $this->render('commande/edit.html.twig', [
             'form' => $form->createView(),
             'commande' => $commande
@@ -108,22 +121,21 @@ final class CommandeController extends AbstractController
             'commande' => $commande,
         ]);
     }*/
-    #[Route('/annuler/{id}', name: 'commande_cancel', methods: ['GET'])]
+
+    //final
+    #[Route('admin/supprimer/{id}', name: 'admin.commande.cancel', methods: ['GET'])]
     public function cancel(Commande $commande, EntityManagerInterface $entityManager): RedirectResponse
     {
-        // Vérifie si la commande est encore "En attente"
-        if ($commande->getEtat() !== 'En attente') {
-            $this->addFlash('warning', 'Seules les commandes en attente peuvent être supprimées.');
-            return $this->redirectToRoute('app_orders');
+        // Vérifie si la commande est encore "En attente" ou si elle est annulée avant de la supprimer de la base.
+        if ($commande->getEtat() !== 'En attente' && $commande->getEtat() !== 'Annulée') {
+            $this->addFlash('warning', 'Seules les commandes en attente ou annulées peuvent être supprimées.');
+            return $this->redirectToRoute('admin.commandes.list');
         }
-
         // Supprimer la commande de la base
         $entityManager->remove($commande);
         $entityManager->flush();
-
         $this->addFlash('success', 'La commande a été supprimée avec succès.');
-
-        return $this->redirectToRoute('app_orders');
+        return $this->redirectToRoute('admin.commandes.list');
     }
     #[Route('/validate', name: 'app_validation')]
     public function validateCommande(Request $request, EntityManagerInterface $em): Response
@@ -186,13 +198,10 @@ final class CommandeController extends AbstractController
             $commande->setPrixTotal($total);
             $em->persist($commande);
             $em->flush();
-
             $session->set('user_cart_quantities', $quantities); // Mise à jour partielle du panier
             $this->addFlash('success', 'Commande validée avec succès.');
-
             return $this->redirectToRoute('app_orders');
         }
-
         return $this->render('commande/validation.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -208,8 +217,6 @@ final class CommandeController extends AbstractController
             'commande' => $commande
         ]);
     }
-
-
 
     #[Route('/{id<\d+>}', name: 'commandes.detail')]
     public function detail(Commande $commande = null): Response
