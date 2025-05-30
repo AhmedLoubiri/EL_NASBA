@@ -48,7 +48,7 @@
               <p class="text-muted small">
                 {% if item.product.categories is not empty %}
                 {% for category in item.product.categories %}
-                {{ category.name }}{% if not loop.last %}, {% endif %}
+                {{ category.label }}{% if not loop.last %}, {% endif %}
                 {% endfor %}
                 {% else %}
                 Catégorie

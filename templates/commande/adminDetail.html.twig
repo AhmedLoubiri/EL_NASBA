@@ -53,7 +53,7 @@
                                     <label class="text-muted small mb-1">Prix Total</label>
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-tag text-primary me-2"></i>
-                                        <span class="fw-bold fs-4">{{ commande.getPrixTotal() }} TND</span>
+                                        <span class="fw-bold fs-4">{{ commande.getPrixTotal() }}DT</span>
                                     </div>
                                 </div>
                             </div>
@@ -97,10 +97,10 @@
                                                 {{ commande.productQuantities[article.id]|default(1) }}
                                             </td>
                                             <td class="text-end">
-                                                {{ article.getPrix() }} TND
+                                                {{ article.getPrix() }} DT
                                             </td>
                                             <td class="text-end fw-bold">
-                                                {{ (commande.productQuantities[article.id]|default(1) * article.getPrix())|number_format(2, '.', ',') }} TND
+                                                {{ (commande.productQuantities[article.id]|default(1) * article.getPrix())|number_format(2, '.', ',') }} DT
                                             </td>
                                         </tr>
                                     {% else %}
@@ -117,7 +117,7 @@
                                     <tfoot class="table-light">
                                     <tr>
                                         <th>Total</th>
-                                        <th class="text-end">{{ commande.getPrixTotal() }} TND</th>
+                                        <th class="text-end">{{ commande.getPrixTotal() }}DT</th>
                                         <th class="text-end">Frais livraison</th>
                                         <th>9.99DT</th>
 
