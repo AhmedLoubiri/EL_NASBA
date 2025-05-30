@@ -134,10 +134,12 @@
                                 <i class="fas fa-arrow-left me-2"></i>Retour
                             </a>
                             <div class="d-flex gap-2">
-                                {% if commande.etat in ['En attente'] %}
+                                {% if commande.etat == 'En attente' %}
                                     <a href="{{ path('commande.edit', {'id': commande.getId()}) }}" class="btn btn-primary">
                                         <i class="fas fa-edit me-2"></i>Modifier
                                     </a>
+                                {% endif %}
+                                {% if commande.etat in ['En attente','En cours'] %}
                                     <a href="{{ path('user.annuler.commande', {'id': commande.getId()}) }}"
                                        class="btn btn-danger"
                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">

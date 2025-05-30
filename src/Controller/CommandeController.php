@@ -63,13 +63,21 @@ final class CommandeController extends AbstractController
                 }
             }
             $commande->setEtat($etat);
+            if($etat === 'Annulée') {
+                $productQuantities = $commande->getProductQuantities();
+                foreach ($commande->getProducts() as $product) {
+                    $id = $product->getId();
+                    $qty = $productQuantities[$id] ?? 0;
+                    $product->setQuantity($product->getQuantity() + $qty);
+                }
+            }
             $em->flush();
             $this->addFlash('success', 'État de la commande mis à jour.');
             return $this->redirectToRoute('admin.commandes.list');
         }
         $etats = ['En attente', 'En cours', 'Expédiée', 'Annulée'];
         if( $oldEtat === 'En cours') {
-            $etats = ['En cours','Annulée'];
+            $etats = ['En cours','Annulée','Expediée'];
 
         }
         return $this->render('commande/adminEdit.html.twig', [
@@ -101,6 +109,15 @@ final class CommandeController extends AbstractController
             $this->addFlash('warning', 'Cette commande ne peut pas être annulée.');
             return $this->redirectToRoute('app_orders');
         }
+        if ($commande->getEtat() == 'En cours') {
+            $productQuantities = $commande->getProductQuantities();
+            foreach ($commande->getProducts() as $product) {
+                $id = $product->getId();
+                $qty = $productQuantities[$id] ?? 0;
+                $product->setQuantity($product->getQuantity() + $qty);
+            }
+        }
+
         $commande->setEtat('Annulée');
         $em->flush();
         $this->addFlash('success', 'Votre commande a été annulée avec succès.');
@@ -110,7 +127,6 @@ final class CommandeController extends AbstractController
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
         $availableProducts = $commande->getProducts()->toArray();
-
         $form = $this->createForm(
             CommandeForm::class,
             $commande,
@@ -144,9 +160,6 @@ final class CommandeController extends AbstractController
             ]
         );
     }
-
-
-
     //final
     #[Route('admin/supprimer/{id}', name: 'admin.commande.cancel', methods: ['GET'])]
     public function cancel(Commande $commande, EntityManagerInterface $entityManager): RedirectResponse
