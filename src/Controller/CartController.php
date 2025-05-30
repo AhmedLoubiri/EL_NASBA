@@ -100,8 +100,8 @@ class CartController extends AbstractController
         $currentQuantity = $this->getProductQuantityFromSession($session, $id);
         $newTotalQuantity = $currentQuantity + $quantity;
 
-        if ($newTotalQuantity > $product->getQuantité()) {
-            $this->addFlash('warning', 'Stock insuffisant. Il reste seulement ' . $product->getQuantité() . ' exemplaire(s) disponible(s).');
+        if ($newTotalQuantity > $product->getQuantity()) {
+            $this->addFlash('warning', 'Stock insuffisant. Il reste seulement ' . $product->getQuantity() . ' exemplaire(s) disponible(s).');
             return $this->redirectToRoute('app_cart');
         }
 
@@ -143,11 +143,11 @@ class CartController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], 404);
         }
 
-        if ($quantity > $product->getQuantité()) {
+        if ($quantity > $product->getQuantity()) {
             return new JsonResponse(
                 [
                 'success' => false,
-                'message' => 'Stock insuffisant. Quantité max: ' . $product->getQuantité()
+                'message' => 'Stock insuffisant. Quantité max: ' . $product->getQuantity()
                 ], 400
             );
         }

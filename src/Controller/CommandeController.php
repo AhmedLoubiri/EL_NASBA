@@ -25,10 +25,12 @@ final class CommandeController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $repository = $doctrine->getRepository(Commande::class);
         $commandes = $repository->findBy([], ['prix_total' => 'DESC', 'date_commande' => 'DESC']);
-        return $this->render('commande/adminIndex.html.twig', [
+        return $this->render(
+            'commande/adminIndex.html.twig', [
             'commandes' => $commandes,
             'controller_name' => 'CommandeController',
-        ]);
+            ]
+        );
     }
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/edit/{id}', name: 'admin_edit_commande')]
@@ -50,10 +52,12 @@ final class CommandeController extends AbstractController
             $this->addFlash('success', 'État de la commande mis à jour.');
             return $this->redirectToRoute('admin.commandes.list');
         }
-        return $this->render('commande/adminEdit.html.twig', [
+        return $this->render(
+            'commande/adminEdit.html.twig', [
             'commande' => $commande,
             'etats' => ['En attente', 'En cours', 'Expédiée', 'Annulée']
-        ]);
+            ]
+        );
     }
     //user:
     #[Route('/mes-commandes', name: 'app_orders')]
@@ -61,9 +65,11 @@ final class CommandeController extends AbstractController
     {
         $user = $this->getUser();
         $commandes = $repo->findBy(['user' => $user], ['date_commande' => 'DESC']);
-        return $this->render('commande/index.html.twig', [
+        return $this->render(
+            'commande/index.html.twig', [
             'commandes' => $commandes,
-        ]);
+            ]
+        );
     }
     #[Route('/commande/annuler/{id}', name: 'user.annuler.commande')]
     public function annulerCommande(Commande $commande, EntityManagerInterface $em, Request $request): RedirectResponse
@@ -85,9 +91,11 @@ final class CommandeController extends AbstractController
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
         $availableProducts = $commande->getProducts()->toArray();
-        $form = $this->createForm(CommandeForm::class, $commande, [
+        $form = $this->createForm(
+            CommandeForm::class, $commande, [
             'panier_products' => $availableProducts,
-        ]);
+            ]
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -103,10 +111,12 @@ final class CommandeController extends AbstractController
             $this->addFlash('success', 'Commande modifiée avec succès.');
             return $this->redirectToRoute('app_orders');
         }
-        return $this->render('commande/edit.html.twig', [
+        return $this->render(
+            'commande/edit.html.twig', [
             'form' => $form->createView(),
             'commande' => $commande
-        ]);
+            ]
+        );
     }
 
 
@@ -156,9 +166,11 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
         $commande = new Commande();
-        $form = $this->createForm(CommandeForm::class, $commande, [
+        $form = $this->createForm(
+            CommandeForm::class, $commande, [
             'panier_products' => $productsInCart
-        ]);
+            ]
+        );
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -169,12 +181,12 @@ final class CommandeController extends AbstractController
                 $id = $product->getId();
                 $qty = $quantities[$id] ?? 0;
 
-                if ($product->getQuantité() < $qty) {
+                if ($product->getQuantity() < $qty) {
                     $this->addFlash('error', "Stock insuffisant pour : " . $product->getLabel());
                     return $this->redirectToRoute('app_cart');
                 }
 
-                $product->setQuantité($product->getQuantité() - $qty);
+                $product->setQuantity($product->getQuantity() - $qty);
                 $total += $product->getPrix() * $qty;
 
                 // Retirer du panier
@@ -195,10 +207,12 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('app_orders');
         }
 
-        return $this->render('commande/validation.html.twig', [
+        return $this->render(
+            'commande/validation.html.twig', [
             'form' => $form->createView(),
             'qty' => $qty,
-        ]);
+            ]
+        );
     }
     #[Route('/admin/{id<\d+>}', name: 'admin.commandes.detail')]
     public function adminDetail(Commande $commande = null): Response
@@ -207,9 +221,11 @@ final class CommandeController extends AbstractController
             $this->addFlash('error', "La commande n'existe pas");
             return $this->redirectToRoute('admin.commandes.list');
         }
-        return $this->render('commande/adminDetail.html.twig', [
+        return $this->render(
+            'commande/adminDetail.html.twig', [
             'commande' => $commande
-        ]);
+            ]
+        );
     }
     #[Route('/{id<\d+>}', name: 'commandes.detail')]
     public function detail(Commande $commande = null): Response
@@ -218,9 +234,11 @@ final class CommandeController extends AbstractController
             $this->addFlash('error', "La commande n'existe pas");
             return $this->redirectToRoute('commande.list');
         }
-        return $this->render('commande/detail.html.twig', [
+        return $this->render(
+            'commande/detail.html.twig', [
             'commande' => $commande
-        ]);
+            ]
+        );
     }
 }
 
