@@ -50,7 +50,6 @@ class CartController extends AbstractController
         } else {
             $sessionCart = $session->get('cart', []);
             $cartItems = $this->convertSessionToCartItems($sessionCart);
-
             foreach ($cartItems as $item) {
                 $subtotal += $item['product']->getPrix() * $item['quantity'];
             }

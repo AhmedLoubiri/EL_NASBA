@@ -1,12 +1,13 @@
 <?php
-// src/Controller/PaymentController.php
 namespace App\Controller;
 
 use App\Service\PaymeeClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
 class PaymeeController extends AbstractController
 {
     private $paymee;
@@ -21,7 +22,9 @@ class PaymeeController extends AbstractController
     {
         $amount = 10.0; // montant en dinars
         $note = "Commande test";
-        $backUrl = $this->generateUrl('payment_success', [], 0);
+
+        // Générer l'URL absolue pour le retour
+        $backUrl = $this->generateUrl('payment_success', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $paymentUrl = $this->paymee->createPayment($amount, $note, $backUrl);
 
@@ -30,20 +33,20 @@ class PaymeeController extends AbstractController
             return $this->redirect($paymentUrl);
         }
 
-        // En cas d'erreur, redirige vers une page d’échec personnalisée
+        // En cas d'erreur, ajouter un message flash
+        $this->addFlash('error', 'Impossible de créer le paiement. Veuillez réessayer.');
         return $this->redirectToRoute('payment_failed');
     }
 
-
     #[Route('/paiement/success', name: 'payment_success')]
-    public function success()
+    public function success(): Response
     {
         return $this->render('paiment/success.html.twig');
     }
+
     #[Route('/paiement/echec', name: 'payment_failed')]
-    public function failed()
+    public function failed(): Response
     {
         return $this->render('paiment/failed.html.twig');
     }
-
 }

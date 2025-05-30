@@ -4,15 +4,48 @@
 
 {% block body %}
     <div class="container text-center mt-5">
-        <h1 class="text-danger"><i class="fas fa-times-circle"></i> Paiement échoué</h1>
-        <p class="lead mt-3">Une erreur s'est produite pendant le processus de paiement.</p>
-        <p>Veuillez réessayer ou contacter notre support si le problème persiste.</p>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h1 class="text-danger mb-4">
+                            <i class="fas fa-times-circle fa-3x"></i>
+                        </h1>
+                        <h2 class="text-danger">Paiement échoué</h2>
+                        <p class="lead mt-3">Une erreur s'est produite pendant le processus de paiement.</p>
+                        <p class="text-muted">Veuillez réessayer ou contacter notre support si le problème persiste.</p>
 
-        <a href="{{ path('app_payment') }}" class="btn btn-warning mt-4">
-            Réessayer le paiement
-        </a>
-        <a href="{{ path('app_product_list_product') }}" class="btn btn-secondary mt-2">
-            Revenir au catalogue
-        </a>
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+
+                        <div class="mt-4 d-grid gap-2">
+                            <a href="{{ path('app_payment') }}" class="btn btn-warning">
+                                <i class="fas fa-redo me-2"></i>
+                                Réessayer le paiement
+                            </a>
+                            <a href="{{ path('app_product_list_product') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Revenir au catalogue
+                            </a>
+                            <a href="{{ path('app_home') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-home me-2"></i>
+                                Retour à l'accueil
+                            </a>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <small class="text-muted">
+                                <i class="fas fa-headset me-1"></i>
+                                Besoin d'aide ? Contactez notre support client
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

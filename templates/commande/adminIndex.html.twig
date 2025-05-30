@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Les Commandes {% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <h2><i class="fas fa-box"></i>Historique des Commandes</h2>
+        {% if commandes|length > 0 %}
+            <div class="row">
+                {% for commande in commandes %}
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">Commande n°{{ commande.id }}</h5>
+                                    <small class="text-muted">{{ commande.getDateCommande()|date('d/m/Y H:i;s') }}</small>
+                                </div>
+                                <div>
+                                    {% if commande.getEtat() == 'En attente' %}
+                                        <span class="badge bg-warning">En attente</span>
+                                    {% elseif commande.getEtat() == 'En cours' %}
+                                        <span class="badge bg-info">En cours</span>
+                                    {% elseif commande.getEtat() == 'Expédiée' %}
+                                        <span class="badge bg-primary">Expédiée</span>
+                                    {% elseif commande.getEtat() == 'delivered' %}
+                                        <span class="badge bg-success">Livrée</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ commande.getEtat() }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h6>Produits commandés:</h6>
+                                        {% for product in commande.getProducts() %}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <img src="/placeholder.svg?height=50&width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
+                                                <div>
+                                                    <strong>{{ product.getLabel() }}</strong><br>S
+                                                    <small class="text-muted">{{ product.getPrix() }}€</small>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <h6>Total: {{ commande.getPrixTotal() }}€</h6>
+                                        <a href="{{ path('admin.commandes.detail', {'id': commande.id}) }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Voir détails
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h4>Aucune commande</h4>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -19,6 +19,7 @@ class CommandeForm extends AbstractType
         $builder
             ->add('products', EntityType::class, [
                 'class' => Product::class,
+                'choices' => $options['panier_products'],
                 'choice_label' => function (Product $product) {
                     return sprintf('%s - %.2f TND', $product->getLabel(), $product->getPrix());
                 },
@@ -59,6 +60,7 @@ class CommandeForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Commande::class,
+            'panier_products' => [],
         ]);
     }
 }
