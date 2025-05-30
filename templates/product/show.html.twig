@@ -39,7 +39,7 @@
       <!-- Categories -->
       <div class="mb-3">
         {% for category in product.categories %}
-        <span class="badge bg-primary me-1">{{ category.name }}</span>
+        <span class="badge bg-primary me-1">{{ category.label }}</span>
         {% endfor %}
       </div>
 
@@ -89,7 +89,7 @@
             <li><strong>Référence:</strong> {{ product.id }}</li>
             <li><strong>Catégories:</strong>
               {% for category in product.categories %}
-              {{ category.name }}{% if not loop.last %}, {% endif %}
+              {{ category.label }}{% if not loop.last %}, {% endif %}
               {% endfor %}
             </li>
             {% if product.seasons is defined and product.seasons|length > 0 %}

@@ -138,17 +138,16 @@ final class ProductController extends AbstractController
             }
         }
 
-        // Filter by categories
-        if ($request->query->get('categories')) {
-            $categoryIds = explode(',', $request->query->get('categories'));
+        $categoryIds = $request->query->all('categories');
+        if (!empty($categoryIds)) {
             $queryBuilder->join('p.categories', 'c')
                 ->andWhere('c.id IN (:categories)')
                 ->setParameter('categories', $categoryIds);
         }
 
         // Filter by specific seasons
-        if ($request->query->get('seasons')) {
-            $seasonIds = explode(',', $request->query->get('seasons'));
+        $seasonIds = $request->query->all('seasons'); // pas explode() ici
+        if (!empty($seasonIds)) {
             $queryBuilder->join('p.relation', 'season')
                 ->andWhere('season.id IN (:seasons)')
                 ->setParameter('seasons', $seasonIds);
@@ -187,6 +186,7 @@ final class ProductController extends AbstractController
             'product/index.html.twig', [
                 'products' => $products,
                 'categories' => $categories,
+                'selected_categories' => $categoryIds,
                 'seasons' => $seasons,
                 'current_season' => $currentSeason,
                 'filter_date' => $request->query->get('filter_date'),

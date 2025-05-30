@@ -9,51 +9,68 @@
     <div class="col-lg-3">
       <div class="category-filter">
         <h5><i class="fas fa-filter"></i> Filtres</h5>
-
-        <!-- Category Filter -->
-        <div class="mb-4">
-          <h6>Catégories</h6>
-          {% if categories is defined %}
-          {% for category in categories %}
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="{{ category.id }}" id="category{{ category.id }}">
-            <label class="form-check-label" for="category{{ category.id }}">
-              {{ category.label }}
-            </label>
-          </div>
-          {% endfor %}
-          {% endif %}
-        </div>
-
-        <!-- Price Filter -->
-        <div class="mb-4">
-          <h6>Prix</h6>
+        <form method="get" action="{{ path('app_product_app_products') }}" class="mb-4">
           <div class="row">
             <div class="col-6">
-              <input type="number" class="form-control form-control-sm" placeholder="Min" id="priceMin">
+              <label for="price_min" class="form-label">Min Price:</label>
+              <input type="number"
+                     name="price_min"
+                     id="price_min"
+                     class="form-control form-control-sm"
+                     value="{{ app.request.get('price_min') }}"
+                     min="0">
             </div>
             <div class="col-6">
-              <input type="number" class="form-control form-control-sm" placeholder="Max" id="priceMax">
+              <label for="price_max" class="form-label">Max Price:</label>
+              <input type="number"
+                     name="price_max"
+                     id="price_max"
+                     class="form-control form-control-sm"
+                     value="{{ app.request.get('price_max') }}"
+                     min="0">
             </div>
           </div>
-        </div>
-
-        <!-- Season Filter -->
-        {% if seasons is defined %}
-        <div class="mb-4">
-          <h6>Saisons</h6>
-          {% for season in seasons %}
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="{{ season.id }}" id="season{{ season.id }}">
-            <label class="form-check-label" for="season{{ season.id }}">
-              {{ season.name }}
-            </label>
+          <div class="mb-4">
+            <h6>Catégories</h6>
+            {% if categories is defined %}
+              {% for category in categories %}
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                         value="{{ category.id }}"
+                         name="categories[]"
+                         id="category{{ category.id }}"
+                         {% if selected_categories is defined and category.id in selected_categories %}checked{% endif %}>
+                  <label class="form-check-label" for="category{{ category.id }}">
+                    {{ category.label }}
+                  </label>
+                </div>
+              {% endfor %}
+            {% endif %}
           </div>
-          {% endfor %}
-        </div>
-        {% endif %}
+          {% if seasons is defined %}
+            <div class="mb-4">
+              <h6>Saisons</h6>
+              {% set selectedSeasons = app.request.query.all('seasons') ?: [] %}
+              {% for season in seasons %}
+                <div class="form-check">
+                  <input
+                          class="form-check-input"
+                          type="checkbox"
+                          name="seasons[]"
+                          value="{{ season.id }}"
+                          id="season{{ season.id }}"
+                          {% if season.id in selectedSeasons %}checked{% endif %}
+                  >
+                  <label class="form-check-label" for="season{{ season.id }}">
+                    {{ season.name }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
-        <button class="btn btn-light btn-sm w-100">Appliquer les filtres</button>
+          <button type="submit" class="btn btn-light btn-sm mt-3 w-100">Appliquer les filtres</button>
+        </form>
       </div>
     </div>
 
