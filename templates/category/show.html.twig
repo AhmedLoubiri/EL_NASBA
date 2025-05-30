@@ -36,7 +36,7 @@
           <p class="card-text">{{ product.description|slice(0, 100) }}...</p>
 
           <div class="d-flex justify-content-between align-items-center">
-            <span class="price">{{ product.prix }}€</span>
+            <span class="price">{{ product.prix }}DT</span>
             <div class="btn-group">
               <a href="{{ path('app_product_list_product_by_category', {'id': product.id}) }}"
                 class="btn btn-outline-primary btn-sm">
