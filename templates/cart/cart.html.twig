@@ -3,268 +3,285 @@
 {% block title %}Mon Panier - {{ parent() }}{% endblock %}
 
 {% block body %}
-    <div class="season-banner">
-        <p><i class="fas fa-gift"></i> Livraison gratuite pour les commandes de plus de 50dt !</p>
+<div class="season-banner">
+  <p><i class="fas fa-gift"></i> Livraison gratuite pour les commandes de plus de 50dt !</p>
+</div>
+
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+      <li class="breadcrumb-item active">Panier</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2">Mon Panier</h1>
+    <a href="{{path('app_product_list_product')}}" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left me-2"></i>Continuer vos achats
+    </a>
+  </div>
+
+  {% if cart_items is empty %}
+  <div class="text-center py-5">
+    <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+    <h3 class="text-muted">Votre panier est vide</h3>
+    <p class="text-muted mb-4">Découvrez nos produits et ajoutez-les à votre panier</p>
+    <a href="{{path('app_product_list_product')}}" class="btn btn-primary">
+      Découvrir nos produits
+    </a>
+  </div>
+  {% else %}
+  <div class="row">
+    <!-- Cart Items -->
+    <div class="col-lg-8">
+      {% for item in cart_items %}
+      <div class="product-card card mb-3">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-2">
+              <img src="{{ item.product.imageUrl ?? '/placeholder.svg?height=100&width=100' }}"
+                alt="{{ item.product.label }}" class="img-fluid rounded">
+            </div>
+            <div class="col-md-4">
+              <h5 class="card-title">{{ item.product.label }}</h5>
+              <p class="text-muted small">
+                {% if item.product.categories is not empty %}
+                {% for category in item.product.categories %}
+                {{ category.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                {% else %}
+                Catégorie
+                {% endif %}
+              </p>
+              <p class="text-muted small">{{ item.product.description|slice(0, 50) }}{% if
+                item.product.description|length > 50 %}...{% endif %}</p>
+              <p class="price">{{ item.product.prix|number_format(2) }}dt</p>
+            </div>
+            <div class="col-md-3">
+              <div class="input-group">
+                <button class="btn btn-outline-secondary" type="button"
+                  onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" class="form-control text-center" value="{{ item.quantity }}" min="1"
+                  onchange="updateQuantity({{ item.id }}, this.value)">
+                <button class="btn btn-outline-secondary" type="button"
+                  onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <p class="price">{{ (item.product.prix * item.quantity)|number_format(2) }}dt</p>
+            </div>
+            <div class="col-md-1">
+              <button class="btn btn-outline-danger btn-sm" onclick="removeItem({{ item.id }})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
     </div>
 
-    <div class="container py-4">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
-                <li class="breadcrumb-item active">Panier</li>
-            </ol>
-        </nav>
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h2">Mon Panier</h1>
-            <a href="{{path('app_product_list_product')}}" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left me-2"></i>Continuer vos achats
-            </a>
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Résumé de la commande</h5>
         </div>
-
-        {% if cart_items is empty %}
-            <div class="text-center py-5">
-                <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
-                <h3 class="text-muted">Votre panier est vide</h3>
-                <p class="text-muted mb-4">Découvrez nos produits et ajoutez-les à votre panier</p>
-                <a href="{{path('app_product_list_product')}}" class="btn btn-primary">
-                    Découvrir nos produits
-                </a>
-            </div>
-        {% else %}
-            <div class="row">
-                <!-- Cart Items -->
-                <div class="col-lg-8">
-                    {% for item in cart_items %}
-                        <div class="product-card card mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-2">
-                                        <img src="{{ item.product.imageUrl ?? '/placeholder.svg?height=100&width=100' }}"
-                                             alt="{{ item.product.label }}" class="img-fluid rounded">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <h5 class="card-title">{{ item.product.label }}</h5>
-                                        <p class="text-muted small">
-                                            {% if item.product.categories is not empty %}
-                                                {% for category in item.product.categories %}
-                                                    {{ category.name }}{% if not loop.last %}, {% endif %}
-                                                {% endfor %}
-                                            {% else %}
-                                                Catégorie
-                                            {% endif %}
-                                        </p>
-                                        <p class="text-muted small">{{ item.product.description|slice(0, 50) }}{% if
-                                                item.product.description|length > 50 %}...{% endif %}</p>
-                                        <p class="price">{{ item.product.prix|number_format(2) }}dt</p>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="input-group">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <input type="number" class="form-control text-center" value="{{ item.quantity }}" min="1"
-                                                   onchange="updateQuantity({{ item.id }}, this.value)">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <p class="price">{{ (item.product.prix * item.quantity)|number_format(2) }}dt</p>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="removeItem({{ item.id }})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Résumé de la commande</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Sous-total ({{ cart_items|length }} articles)</span>
-                                <span>{{ subtotal|number_format(2) }}dt</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Livraison</span>
-                                <span>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Sous-total ({{ cart_items|length }} articles)</span>
+            <span>{{ subtotal|number_format(2) }}dt</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Livraison</span>
+            <span>
               {% if shipping == 0 %}
-                  <span class="text-success">Gratuite</span>
+              <span class="text-success">Gratuite</span>
               {% else %}
-                  {{ shipping|number_format(2) }}dt
+              {{ shipping|number_format(2) }}dt
               {% endif %}
             </span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between mb-3">
-                                <strong>Total</strong>
-                                <strong class="price">{{ total|number_format(2) }}dt</strong>
-                            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-3">
+            <strong>Total</strong>
+            <strong class="price">{{ total|number_format(2) }}dt</strong>
+          </div>
 
-                            <!-- // TODO: paiment -->
-                            <a href="{{ path('app_payment') }}" class="btn btn-primary w-100 mb-3">
-                                <i class="fas fa-credit-card me-2"></i>Procéder au paiement
-                            </a>
-                            <a href="{{ path('app_validation') }}" class="btn btn-primary w-100 mb-3">
-                                <i class="fas fa-credit-card me-2"></i>Paiment à la livraison
-                            </a>
+          <!-- // TODO: paiment -->
+          <a href="{{ path('app_stripe_payment', {'cartId': cart_id }) }}" class="btn btn-primary w-100 mb-3">
+            <i class="fas fa-credit-card me-2"></i>Procéder au paiement
+          </a>
+          <a href="{{ path('app_validation') }}" class="btn btn-primary w-100 mb-3">
+            <i class="fas fa-credit-card me-2"></i>Paiment à la livraison
+          </a>
 
-                            <button class="btn btn-outline-danger w-100 mb-3" onclick="clearCart()">
-                                <i class="fas fa-trash me-2"></i>Vider le panier
-                            </button>
+          <button class="btn btn-outline-danger w-100 mb-3" onclick="clearCart()">
+            <i class="fas fa-trash me-2"></i>Vider le panier
+          </button>
 
-                            <div class="text-center">
-                                <small class="text-muted">Paiement sécurisé</small>
-                                <div class="mt-2">
-                                    <i class="fa fa-credit-card" style="font-size:36px"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="text-center">
+            <small class="text-muted">Paiement sécurisé</small>
+            <div class="mt-2">
+              <i class="fa fa-credit-card" style="font-size:36px"></i>
+
             </div>
-        {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo Code -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <h6>Code promo</h6>
+          <form id="promoForm">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Entrez votre code" id="promoCode">
+              <button class="btn btn-outline-secondary" type="submit">Appliquer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        function updateQuantity(itemId, newQuantity) {
-            newQuantity = parseInt(newQuantity);
+<script>
+  function updateQuantity(itemId, newQuantity) {
+    newQuantity = parseInt(newQuantity);
 
-            if (newQuantity <= 0) {
-                removeItem(itemId);
-                return;
-            }
+    if (newQuantity <= 0) {
+      removeItem(itemId);
+      return;
+    }
 
-            fetch(`/cart/update/${itemId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({quantity: newQuantity})
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Erreur lors de la mise à jour');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Erreur lors de la mise à jour');
-                });
+    fetch(`/cart/update/${itemId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({quantity: newQuantity})
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Erreur lors de la mise à jour');
         }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de la mise à jour');
+      });
+  }
 
-        function removeItem(itemId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
-                fetch(`/cart/remove/${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Erreur lors de la suppression');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Erreur lors de la suppression');
-                    });
-            }
+  function removeItem(itemId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+      fetch(`/cart/remove/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
         }
-
-        function clearCart() {
-            if (confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
-                fetch('/cart/clear', {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Erreur lors du vidage du panier');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Erreur lors du vidage du panier');
-                    });
-            }
-        }
-
-        function addTestProduct() {
-            // This adds a test product - replace with actual product ID
-            fetch('/cart/add/1', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: 'quantity=1'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Erreur: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Erreur lors de l\'ajout');
-                });
-        }
-
-        // Promo code form
-        document.getElementById('promoForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const promoCode = document.getElementById('promoCode').value;
-
-            if (promoCode.trim() === '') {
-                alert('Veuillez entrer un code promo');
-                return;
-            }
-
-            alert('Fonctionnalité code promo à implémenter');
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Erreur lors de la suppression');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Erreur lors de la suppression');
         });
+    }
+  }
 
-        // Update cart count in navigation
-        function updateCartCount() {
-            fetch('/cart/count')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.querySelector('.cart-badge');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        badge.style.display = data.count > 0 ? 'block' : 'none';
-                    }
-                });
+  function clearCart() {
+    if (confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
+      fetch('/cart/clear', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
         }
-        document.addEventListener('DOMContentLoaded', updateCartCount);
-    </script>
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Erreur lors du vidage du panier');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Erreur lors du vidage du panier');
+        });
+    }
+  }
+
+  function addTestProduct() {
+    // This adds a test product - replace with actual product ID
+    fetch('/cart/add/1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: 'quantity=1'
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Erreur: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Erreur lors de l\'ajout');
+      });
+  }
+
+  // Promo code form
+  document.getElementById('promoForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const promoCode = document.getElementById('promoCode').value;
+
+    if (promoCode.trim() === '') {
+      alert('Veuillez entrer un code promo');
+      return;
+    }
+
+    alert('Fonctionnalité code promo à implémenter');
+  });
+
+  // Update cart count in navigation
+  function updateCartCount() {
+    fetch('/cart/count')
+      .then(response => response.json())
+      .then(data => {
+        const badge = document.querySelector('.cart-badge');
+        if (badge) {
+          badge.textContent = data.count;
+          badge.style.display = data.count > 0 ? 'block' : 'none';
+        }
+      });
+  }
+
+  // Call on page load
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
 {% endblock %}
