@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Form;
 
 use App\Entity\Commande;
 use App\Entity\Product;
-use App\Repository\ProductRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -23,10 +23,6 @@ class CommandeForm extends AbstractType
                 'choice_label' => function (Product $product) {
                     return sprintf('%s - %.2f TND', $product->getLabel(), $product->getPrix());
                 },
-                'query_builder' => function (ProductRepository $repository) {
-                    return $repository->createQueryBuilder('p')
-                        ->orderBy('p.label', 'ASC');
-                },
                 'multiple' => true,
                 'expanded' => true,
                 'label' => 'Produits disponibles',
@@ -39,7 +35,8 @@ class CommandeForm extends AbstractType
                 ],
                 'attr' => [
                     'class' => 'products-selection'
-                ]
+                ],
+                'by_reference' => false, // Important pour ManyToMany
             ])
             ->add('adresse', TextareaType::class, [
                 'label' => 'Adresse de livraison',

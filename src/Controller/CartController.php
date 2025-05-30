@@ -33,7 +33,6 @@ class CartController extends AbstractController
 
         if ($user) {
             $panier = $user->getPanier();
-
             if ($panier) {
                 $products = $panier->getProduct();
 

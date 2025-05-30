@@ -31,6 +31,7 @@
                         <div class="col-md-6 mb-2">
                             <div class="product-card">
                                 <div class="form-check">
+                                    <th class="text-end">{{ qty }} </th>
                                     {{ form_widget(productField, {'attr': {'class': 'form-check-input product-checkbox'}}) }}
                                     {{ form_label(productField, null, {'label_attr': {'class': 'form-check-label'}}) }}
                                 </div>
@@ -65,7 +66,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const checkboxes = document.querySelectorAll('.product-checkbox');
 
             checkboxes.forEach(checkbox => {
@@ -76,7 +77,7 @@
                 }
 
                 // Handle checkbox change
-                checkbox.addEventListener('change', function() {
+                checkbox.addEventListener('change', function () {
                     if (this.checked) {
                         productCard.classList.add('selected');
                     } else {
@@ -84,7 +85,7 @@
                     }
                 });
 
-                productCard.addEventListener('click', function(e) {
+                productCard.addEventListener('click', function (e) {
                     if (e.target !== checkbox) {
                         checkbox.checked = !checkbox.checked;
                         checkbox.dispatchEvent(new Event('change'));

@@ -3,7 +3,6 @@
 {% block title %}Editer Commande{% endblock %}
 
 {% block body %}
-
     <link rel="stylesheet" href="{{ asset('assets/css/editCommande.css') }}">
 
     <div class="container mt-4">
@@ -12,85 +11,40 @@
                 <i class="fas fa-edit me-2"></i>
                 Modifier votre commande
             </h1>
-            <p class="mb-0">Sélectionnez vos produits et confirmez votre adresse</p>
+            <p class="mb-0">Décochez les produits que vous ne souhaitez plus commander</p>
         </div>
 
         {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
 
         <div class="section-card">
-            <h4 class="mb-3">
-                <i class="fas fa-shopping-cart me-2"></i>
-                Produits disponibles
-            </h4>
-            {{ form_help(form.products) }}
-
-            <div class="form-group mt-3">
-                {{ form_errors(form.products) }}
-                <div class="row">
-                    {% for productField in form.products %}
-                        <div class="col-md-6 mb-2">
-                            <div class="product-card">
-                                <div class="form-check">
-                                    {{ form_widget(productField, {'attr': {'class': 'form-check-input product-checkbox'}}) }}
-                                    {{ form_label(productField, null, {'label_attr': {'class': 'form-check-label'}}) }}
-                                </div>
+            <h4 class="mb-3"><i class="fas fa-shopping-cart me-2"></i>Produits de la commande</h4>
+            {{ form_errors(form.products) }}
+            <div class="row">
+                {% for productField in form.products %}
+                    <div class="col-md-6 mb-3">
+                        <div class="product-card">
+                            <div class="form-check">
+                                {{ form_widget(productField, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(productField, null, {'label_attr': {'class': 'form-check-label'}}) }}
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 
         <div class="section-card">
-            <h4 class="mb-3">
-                <i class="fas fa-map-marker-alt me-2"></i>
-                Adresse de livraison
-            </h4>
-            {{ form_row(form.adresse, {
-                'attr': {
-                    'rows': 3,
-                    'placeholder': 'Entrez votre adresse complète...'
-                }
-            }) }}
+            <h4 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>Adresse de livraison</h4>
+            {{ form_row(form.adresse) }}
         </div>
 
-        <div class="text-center">
+        <div class="text-center mt-4">
             <button type="submit" class="btn btn-submit">
                 <i class="fas fa-paper-plane me-2"></i>
-                Envoyer la commande
+                Enregistrer les modifications
             </button>
         </div>
 
         {{ form_end(form) }}
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.product-checkbox');
-
-            checkboxes.forEach(checkbox => {
-                const productCard = checkbox.closest('.product-card');
-
-                if (checkbox.checked) {
-                    productCard.classList.add('selected');
-                }
-
-                // Handle checkbox change
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        productCard.classList.add('selected');
-                    } else {
-                        productCard.classList.remove('selected');
-                    }
-                });
-
-                productCard.addEventListener('click', function(e) {
-                    if (e.target !== checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                        checkbox.dispatchEvent(new Event('change'));
-                    }
-                });
-            });
-        });
-    </script>
 {% endblock %}

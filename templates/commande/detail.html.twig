@@ -117,7 +117,7 @@
                             </a>
 
                             <div class="d-flex gap-2">
-                                {% if commande.etat in ['En attente', 'En cours'] %}
+                                {% if commande.etat in ['En attente'] %}
                                     <a href="{{ path('commande.edit', {'id': commande.getId()}) }}" class="btn btn-primary">
                                         <i class="fas fa-edit me-2"></i>Modifier
                                     </a>

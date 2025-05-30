@@ -50,7 +50,6 @@ final class CommandeController extends AbstractController
             $this->addFlash('success', 'État de la commande mis à jour.');
             return $this->redirectToRoute('admin.commandes.list');
         }
-
         return $this->render('commande/adminEdit.html.twig', [
             'commande' => $commande,
             'etats' => ['En attente', 'En cours', 'Expédiée', 'Annulée']
@@ -85,13 +84,20 @@ final class CommandeController extends AbstractController
     #[Route('/edit/{id}', name: 'commande.edit')]
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(CommandeForm::class, $commande);
+        $availableProducts = $commande->getProducts()->toArray();
+
+        $form = $this->createForm(CommandeForm::class, $commande, [
+            'panier_products' => $availableProducts,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $total = 0;
             foreach ($commande->getProducts() as $product) {
                 $total += $product->getPrix();
+            }
+            if ($total < 50) {
+                $total += 9.99;
             }
             $commande->setPrixTotal($total);
             $em->flush();
@@ -104,23 +110,6 @@ final class CommandeController extends AbstractController
         ]);
     }
 
-    /*#[Route('/commande/edit/{id}', name: 'commande_user_edit')]
-    public function userEditCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
-    {
-        $form = $this->createForm(CommandeForm::class, $commande);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-            $this->addFlash('success', 'La commande a été modifiée avec succès.');
-            return $this->redirectToRoute('app_orders');
-        }
-
-        return $this->render('commande/edit.html.twig', [
-            'form' => $form->createView(),
-            'commande' => $commande,
-        ]);
-    }*/
 
     //final
     #[Route('admin/supprimer/{id}', name: 'admin.commande.cancel', methods: ['GET'])]
@@ -137,6 +126,7 @@ final class CommandeController extends AbstractController
         $this->addFlash('success', 'La commande a été supprimée avec succès.');
         return $this->redirectToRoute('admin.commandes.list');
     }
+
     #[Route('/validate', name: 'app_validation')]
     public function validateCommande(Request $request, EntityManagerInterface $em): Response
     {
@@ -147,9 +137,11 @@ final class CommandeController extends AbstractController
             $this->addFlash('error', 'Veuillez vous connecter pour passer une commande.');
             return $this->redirectToRoute('app_login');
         }
+
         $panier = $user->getPanier();
         $quantities = $session->get('user_cart_quantities', []);
         $productsInCart = [];
+
         if ($panier) {
             foreach ($panier->getProduct() as $product) {
                 $id = $product->getId();
@@ -159,6 +151,7 @@ final class CommandeController extends AbstractController
                 }
             }
         }
+
         if (empty($productsInCart)) {
             $this->addFlash('warning', 'Votre panier est vide.');
             return $this->redirectToRoute('app_cart');
@@ -181,11 +174,16 @@ final class CommandeController extends AbstractController
                     $this->addFlash('error', "Stock insuffisant pour : " . $product->getLabel());
                     return $this->redirectToRoute('app_cart');
                 }
+
                 $product->setQuantité($product->getQuantité() - $qty);
                 $total += $product->getPrix() * $qty;
+
                 // Retirer du panier
                 $user->getPanier()->removeProduct($product);
                 unset($quantities[$id]);
+            }
+            if($total<50.0) {
+                $total += 9.99;
             }
             $commande->setUser($user);
             $commande->setEtat('En attente');
@@ -194,10 +192,13 @@ final class CommandeController extends AbstractController
             $em->flush();
             $session->set('user_cart_quantities', $quantities); // Mise à jour partielle du panier
             $this->addFlash('success', 'Commande validée avec succès.');
+
             return $this->redirectToRoute('app_orders');
         }
+
         return $this->render('commande/validation.html.twig', [
             'form' => $form->createView(),
+            'qty' => $qty,
         ]);
     }
     #[Route('/admin/{id<\d+>}', name: 'admin.commandes.detail')]
@@ -211,7 +212,6 @@ final class CommandeController extends AbstractController
             'commande' => $commande
         ]);
     }
-
     #[Route('/{id<\d+>}', name: 'commandes.detail')]
     public function detail(Commande $commande = null): Response
     {
