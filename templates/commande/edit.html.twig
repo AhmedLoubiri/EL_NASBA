@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editer Commande{% endblock %}
+
+{% block body %}
+    <link rel="stylesheet" href="{{ asset('assets/css/editCommande.css') }}">
+
+    <div class="container mt-4">
+        <div class="order-header">
+            <h1 class="mb-2">
+                <i class="fas fa-edit me-2"></i>
+                Modifier votre commande
+            </h1>
+            <p class="mb-0">Décochez les produits que vous ne souhaitez plus commander</p>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+        <div class="section-card">
+            <h4 class="mb-3"><i class="fas fa-shopping-cart me-2"></i>Produits de la commande</h4>
+            {{ form_errors(form.products) }}
+            <div class="row">
+                {% for productField in form.products %}
+                    <div class="col-md-6 mb-3">
+                        <div class="product-card">
+                            <div class="form-check">
+                                {{ form_widget(productField, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(productField, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h4 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>Adresse de livraison</h4>
+            {{ form_row(form.adresse) }}
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-submit">
+                <i class="fas fa-paper-plane me-2"></i>
+                Enregistrer les modifications
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Commande #{{ commande.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier l'état de la commande n°{{ commande.id }}
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="etat" class="form-label">État de la commande</label>
+                        <select name="etat" id="etat" class="form-select">
+                            {% for etat in etats %}
+                                <option value="{{ etat }}" {% if commande.etat == etat %}selected{% endif %}>{{ etat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i> Mettre à jour
+                    </button>
+
+                    <a href="{{ path('admin.commandes.list') }}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

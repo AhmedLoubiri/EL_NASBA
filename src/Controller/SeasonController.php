@@ -54,7 +54,7 @@ final class SeasonController extends AbstractController
     }
 
     #[IsGranted('ROLE_ADMIN')]
-    #[Route('/delete/{id}', name: 'delete_person')]
+    #[Route('/delete/{id}', name: 'delete_season')]
     public function delete(Season $season = null): Response
     {
         if (!$season) {

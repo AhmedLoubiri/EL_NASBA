@@ -29,12 +29,20 @@ class Commande
     #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'yes')]
     private Collection $products;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date_commande = null;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $date_commande = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $etat = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $adresse = null;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
+        // Ensure the date_commande is set in the correct timezone
+        $this->date_commande = new \DateTimeImmutable('now', new \DateTimeZone('Africa/Tunis'));
     }
 
     public function getId(): ?int
@@ -95,10 +103,41 @@ class Commande
         return $this->date_commande;
     }
 
-    public function setDateCommande(\DateTime $date_commande): static
+    public function setDateCommande(\DateTimeInterface $date_commande): static
     {
+        // Convert to Africa/Tunis if not already
+        $date_commande = \DateTimeImmutable::createFromInterface($date_commande)
+            ->setTimezone(new \DateTimeZone('Africa/Tunis'));
+
         $this->date_commande = $date_commande;
 
         return $this;
     }
+
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(string $etat): static
+    {
+        $this->etat = $etat;
+
+        return $this;
+    }
+
+    public function getAdresse(): ?string
+    {
+        return $this->adresse;
+    }
+
+    public function setAdresse(string $adresse): static
+    {
+        $this->adresse = $adresse;
+
+        return $this;
+    }
+
+
+
 }

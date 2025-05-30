@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ product.label }} - E-Commerce{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_product_app_product_admin') }}">Administration</a></li>
+                <li class="breadcrumb-item active">Modifier {{ product.label }}</li>
+            </ol>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-edit"></i> Modifier le produit</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form_label(form.label) }}
+                                {{ form_widget(form.label) }}
+                                {{ form_errors(form.label) }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form_label(form.prix) }}
+                                {{ form_widget(form.prix) }}
+                                {{ form_errors(form.prix) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.description) }}
+                            {{ form_widget(form.description) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.quantity) }}
+                            {{ form_widget(form.quantity) }}
+                            {{ form_errors(form.quantity) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.categories) }}
+{#                            <div class="row">#}
+{#                                {% for category in form.categories %}#}
+{#                                    <div class="col-md-4 mb-2">#}
+{#                                        <div class="form-check">#}
+{#                                            {{ form_widget(category) }}#}
+{#                                            {{ form_label(category) }}#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
+{#                            </div>#}
+                            {{ form_widget(form.categories) }}
+                            {{ form_errors(form.categories) }}
+                            <small class="form-text text-muted">{{ form.categories.vars.help }}</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_product_app_product_admin') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save"></i> Modifier le produit
+                            </button>
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

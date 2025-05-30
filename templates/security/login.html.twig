@@ -1,39 +1,189 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connexion - EL_NASBA{% endblock %}
 
 {% block body %}
-<form method="post">
-  {% if error %}
-  <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-  {% endif %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow">
+        <div class="card-header text-center bg-primary text-white">
+          <h3><i class="fas fa-sign-in-alt"></i> Connexion</h3>
+          <p class="mb-0">Accédez à votre compte</p>
+        </div>
+        <div class="card-body p-4">
+          {% if error %}
+          <div class="alert alert-danger">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+          </div>
+          {% endif %}
 
-  {% if app.user %}
-  <div class="mb-3">
-    You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+          {% if app.user %}
+          <div class="alert alert-info">
+            Vous êtes connecté en tant que {{ app.user.userIdentifier }},
+            <a href="{{ path('app_logout') }}">Se déconnecter</a>
+          </div>
+          {% endif %}
+
+          <form method="post">
+            <div class="mb-3">
+              <label for="inputUsername" class="form-label">Nom d'utilisateur</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" value="{{ last_username }}" name="_username" id="inputUsername" class="form-control"
+                  autocomplete="_username" required autofocus placeholder="Votre nom d'utilisateur">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="inputPassword" class="form-label">Mot de passe</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" name="_password" id="inputPassword" class="form-control"
+                  autocomplete="current-password" required placeholder="Votre mot de passe">
+              </div>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" name="_remember_me" class="form-check-input" id="remember_me">
+              <label class="form-check-label" for="remember_me">
+                Se souvenir de moi
+              </label>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="d-grid">
+              <button class="btn btn-primary btn-lg" type="submit">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <div class="text-center">
+            <p class="text-muted">Pas encore de compte ?</p>
+            <a href="{{ path('app_register') }}" class="btn btn-outline-primary">
+              <i class="fas fa-user-plus"></i> S'inscrire
+            </a>
+          </div>
+
+          <div class="text-center mt-3">
+            <a href="#" class="text-muted small">Mot de passe oublié ?</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="row mt-4">
+        <div class="col-md-6 text-center mb-3">
+          <div class="card h-100 border-0">
+            <div class="card-body">
+              <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+              <h6>Sécurisé</h6>
+              <small class="text-muted">Vos données sont protégées</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 text-center mb-3">
+          <div class="card h-100 border-0">
+            <div class="card-body">
+              <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+              <h6>Accès rapide</h6>
+              <small class="text-muted">Connexion en quelques secondes</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  {% endif %}
+</div>
+{% endblock %}
 
-  <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-  <label for="username">Username</label>
-  <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control"
-    autocomplete="username" required autofocus>
-  <label for="password">Password</label>
-  <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-  <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+{% block javascripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    const usernameInput = document.getElementById('inputUsername');
+    const passwordInput = document.getElementById('inputPassword');
 
-  {#
-  Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-  See https://symfony.com/doc/current/security/remember_me.html
+    // Form validation
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        let isValid = true;
 
-  <div class="checkbox mb-3">
-    <input type="checkbox" name="_remember_me" id="_remember_me">
-    <label for="_remember_me">Remember me</label>
-  </div>
-  #}
+        // Reset previous validation states
+        [usernameInput, passwordInput].forEach(input => {
+          input.classList.remove('is-invalid', 'is-valid');
+        });
 
-  <button class="btn btn-lg btn-primary" type="submit">
-    Sign in
-  </button>
-</form>
+        // Validate username
+        if (!usernameInput.value.trim()) {
+          usernameInput.classList.add('is-invalid');
+          console.log("username");
+          isValid = false;
+        } else {
+          usernameInput.classList.add('is-valid');
+        }
+
+        // Validate password
+        if (!passwordInput.value.trim()) {
+          passwordInput.classList.add('is-invalid');
+          console.log("password");
+          isValid = false;
+        } else {
+          passwordInput.classList.add('is-valid');
+        }
+
+        if (!isValid) {
+          e.preventDefault();
+          return false;
+        }
+      });
+    }
+
+    // Real-time validation
+    [usernameInput, passwordInput].forEach(input => {
+      input.addEventListener('input', function () {
+        if (this.classList.contains('is-invalid') && this.value.trim()) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        }
+      });
+
+      input.addEventListener('blur', function () {
+        if (!this.value.trim()) {
+          this.classList.add('is-invalid');
+          this.classList.remove('is-valid');
+        }
+      });
+    });
+
+    // Show/hide password functionality
+    const togglePassword = document.createElement('button');
+    togglePassword.type = 'button';
+    togglePassword.className = 'btn btn-outline-secondary';
+    togglePassword.innerHTML = '<i class="fas fa-eye"></i>';
+    togglePassword.style.position = 'absolute';
+    togglePassword.style.right = '10px';
+    togglePassword.style.top = '50%';
+    togglePassword.style.transform = 'translateY(-50%)';
+    togglePassword.style.border = 'none';
+    togglePassword.style.background = 'transparent';
+    togglePassword.style.zIndex = '10';
+
+    const passwordGroup = passwordInput.parentNode;
+    passwordGroup.style.position = 'relative';
+    passwordGroup.appendChild(togglePassword);
+
+    togglePassword.addEventListener('click', function () {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+
+      const icon = this.querySelector('i');
+      icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+  });
+</script>
 {% endblock %}

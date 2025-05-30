@@ -45,6 +45,9 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $quantity = null;
+
     public function __construct()
     {
         $this->relation = new ArrayCollection();
@@ -179,4 +182,21 @@ class Product
 
         return $this;
     }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): static
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+    public function isInStock(): bool
+    {
+        return $this->quantity !== null && $this->quantity > 0;
+    }
+
 }

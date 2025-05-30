@@ -1,5 +1,6 @@
 .idea
 .phpactor.json
+public/node_modules/
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php

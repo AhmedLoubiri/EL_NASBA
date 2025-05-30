@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la Commande n°{{ commande.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="d-flex align-items-center mb-4">
+                    <a href="{{ path('app_orders') }}" class="btn btn-outline-secondary me-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h1 class="mb-0">Commande n°{{ commande.id }}</h1>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar text-primary me-2"></i>
+                                    <strong>{{ commande.dateCommande|date('d/m/Y H:i') }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                                <span class="badge
+                                    {% if commande.getEtat() == 'En attente' %}bg-warning text-dark
+                                    {% elseif commande.getEtat() == 'En cours' %}bg-info
+                                    {% elseif commande.getEtat() == 'Expédiée' %}bg-primary
+                                    {% elseif commande.getEtat() == 'Livrée' %}bg-success
+                                    {% elseif commande.getEtat() == 'Annulée' %}bg-danger
+                                    {% else %}bg-secondary{% endif %} p-2">
+                                    <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                                    {{ commande.getEtat()|capitalize }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="text-muted small mb-1">Client</label>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user text-primary me-2"></i>
+                                        <span class="fw-bold">{{ commande.getUser().getUserIdentifier() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="text-muted small mb-1">Prix Total</label>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-tag text-primary me-2"></i>
+                                        <span class="fw-bold fs-4">{{ commande.getPrixTotal() }} TND</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if commande.adresse %}
+                            <div class="mb-4">
+                                <label class="text-muted small mb-1">Adresse de livraison</label>
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-map-marker-alt text-primary me-2 mt-1"></i>
+                                    <span>{{ commande.adresse }}</span>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if commande.products is defined %}
+                            <label class="text-muted small mb-2">Articles</label>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th class="text-end">Prix</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for article in commande.products %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-box text-secondary me-2"></i>
+                                                    {{ article.getLabel() }}
+                                                </div>
+                                            </td>
+                                            <td class="text-end fw-bold">{{ article.getPrix() }} TND</td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted py-3">
+                                                <i class="fas fa-box-open me-2"></i>
+                                                Aucun article associé
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-end">{{ commande.getPrixTotal() }} TND</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-footer bg-light">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <a href="{{ path('app_orders') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour
+                            </a>
+
+                            <div class="d-flex gap-2">
+                                {% if commande.etat in ['En attente'] %}
+                                    <a href="{{ path('commande.edit', {'id': commande.getId()}) }}" class="btn btn-primary">
+                                        <i class="fas fa-edit me-2"></i>Modifier
+                                    </a>
+
+                                    <a href="{{ path('user.annuler.commande', {'id': commande.getId()}) }}"
+                                       class="btn btn-danger"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                                        <i class="fas fa-times me-2"></i>Annuler
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if commande.etat == 'Annulée' %}
+                    <div class="alert alert-danger d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                        <div>
+                            <strong>Commande annulée</strong>
+                            <p class="mb-0">Cette commande a été annulée et ne sera pas traitée.</p>
+                        </div>
+                    </div>
+                {% elseif commande.etat == 'Livrée' %}
+                    <div class="alert alert-success d-flex align-items-center">
+                        <i class="fas fa-check-circle me-3 fa-lg"></i>
+                        <div>
+                            <strong>Commande livrée</strong>
+                            <p class="mb-0">Cette commande a été livrée avec succès.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
