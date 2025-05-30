@@ -1,74 +1,74 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catégories - E-Commerce{% endblock %}
+{% block title %}Catégories - EL_NASBA{% endblock %}
 
 {% block body %}
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-tags"></i> Nos Catégories</h2>
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('app_category_admin') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-cog"></i> Administration
-                </a>
-            {% endif %}
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tags"></i> Nos Catégories</h2>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('app_category_admin') }}" class="btn btn-outline-primary">
+      <i class="fas fa-cog"></i> Administration
+    </a>
+    {% endif %}
+  </div>
+
+  {% if categories|length > 0 %}
+  <div class="row">
+    {% for category in categories %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card category-card h-100">
+        <div class="card-body text-center">
+          <div class="category-icon mb-3">
+            <i class="fas fa-tag fa-3x text-primary"></i>
+          </div>
+          <h5 class="card-title">{{ category.label }}</h5>
+
+          <div class="mt-3">
+            <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-primary">
+              <i class="fas fa-eye"></i> Voir les produits
+            </a>
+          </div>
         </div>
-
-        {% if categories|length > 0 %}
-            <div class="row">
-                {% for category in categories %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card category-card h-100">
-                            <div class="card-body text-center">
-                                <div class="category-icon mb-3">
-                                    <i class="fas fa-tag fa-3x text-primary"></i>
-                                </div>
-                                <h5 class="card-title">{{ category.label }}</h5>
-
-                                <div class="mt-3">
-                                    <a href="{{ path('app_category_show', {'id': category.id}) }}" class="btn btn-primary">
-                                        <i class="fas fa-eye"></i> Voir les produits
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
-                <h4>Aucune catégorie disponible</h4>
-                <p class="text-muted">Les catégories seront bientôt disponibles.</p>
-            </div>
-        {% endif %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+    <h4>Aucune catégorie disponible</h4>
+    <p class="text-muted">Les catégories seront bientôt disponibles.</p>
+  </div>
+  {% endif %}
+</div>
 
-    <style>
-        .category-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+<style>
+  .category-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
+  .category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
 
-        .category-icon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
+  .category-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
 
-        .category-icon i {
-            color: white !important;
-        }
-    </style>
+  .category-icon i {
+    color: white !important;
+  }
+</style>
 {% endblock %}

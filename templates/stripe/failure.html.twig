@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Échec du paiement - EL_NASBA{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <!-- Failure Header -->
+      <div class="text-center mb-4">
+        <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+        <h1 class="text-danger">Échec du paiement</h1>
+        <p class="lead">Une erreur s'est produite lors du traitement de votre paiement.</p>
+      </div>
+
+      <!-- Error Details -->
+      <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Détails de l'erreur</h5>
+        </div>
+        <div class="card-body">
+          {% if error_message is defined %}
+          <p class="text-danger">{{ error_message }}</p>
+          {% else %}
+          <p>Le paiement n'a pas pu être traité. Aucun montant n'a été débité.</p>
+          {% endif %}
+
+          <div class="alert alert-warning mt-3">
+            <strong>Causes possibles :</strong>
+            <ul class="mb-0 mt-2">
+              <li>Fonds insuffisants</li>
+              <li>Carte expirée ou bloquée</li>
+              <li>Informations incorrectes</li>
+              <li>Problème technique temporaire</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Status -->
+      {% if panier is defined and panier.products|length > 0 %}
+      <div class="alert alert-info">
+        <i class="fas fa-shopping-cart"></i> Vos articles sont toujours dans votre panier.
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="text-center">
+        <a href="{{ path('app_cart') }}" class="btn btn-primary me-2">
+          <i class="fas fa-redo"></i> Réessayer le paiement
+        </a>
+        <a href="{{ path('app_product_list_product') }}" class="btn btn-outline-secondary">
+          <i class="fas fa-shopping-bag"></i> Continuer mes achats
+        </a>
+      </div>
+
+      <div class="text-center mt-4">
+        <small class="text-muted">
+          Problème persistant ? <a href="#">Contactez-nous</a>
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

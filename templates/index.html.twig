@@ -1,0 +1,311 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - EL_NASBA - Figurines Volantes{% endblock %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center min-vh-75">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <h1 class="hero-title">
+                            Découvrez nos <span class="text-warning">Figurines Volantes</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Collection exclusive de figurines volantes de haute qualité.
+                            Trouvez la figurine parfaite pour votre collection ou offrez un cadeau unique.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="{{ path('app_product_list_product') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-shopping-bag me-2"></i>Découvrir nos produits
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-image text-center">
+                        <!-- Multiple Floating Figurines -->
+                        <div class="figurines-gallery">
+                            <div class="floating-figurine figurine-1">
+                                <img src="{{ asset('pics/azza.jpg') }}" alt="Figurine 1" class="hero-figurine-small">
+                            </div>
+                            <div class="floating-figurine figurine-2">
+                                <img src="{{ asset('pics/fouchika.jpg') }}" alt="Figurine 2" class="hero-figurine-small">
+                            </div>
+                            <div class="floating-figurine figurine-3">
+                                <img src="{{ asset('pics/sboui.jpg') }}" alt="Figurine 3" class="hero-figurine-small">
+                            </div>
+                            <div class="floating-figurine figurine-4">
+                                <img src="{{ asset('pics/soulimen.jpg') }}" alt="Figurine 4" class="hero-figurine-small">
+                            </div>
+                            <div class="floating-figurine figurine-5">
+                                <img src="{{ asset('pics/dadou.jpg') }}" alt="Figurine 5" class="hero-figurine-small">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="text-white mb-4">
+                        <i class="fas fa-envelope me-2"></i>Restez informé de nos nouveautés
+                    </h2>
+                    <p class="text-white-50 mb-4">Inscrivez-vous à notre newsletter pour recevoir les dernières nouvelles et offres exclusives sur nos figurines volantes</p>
+                    <form class="newsletter-form">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Votre adresse email" required>
+                            <button class="btn btn-warning" type="submit">
+                                <i class="fas fa-paper-plane me-2"></i>S'inscrire
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        /* Hero Section */
+        .hero-section {
+            background-color: #e9ecef; /* Light gray */
+            color: #212529; /* Dark text for readability */
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+            min-height: 80vh;
+        }
+
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .hero-buttons .btn {
+            margin-bottom: 1rem;
+            padding: 12px 30px;
+        }
+
+        .figurines-gallery {
+            position: relative;
+            width: 100%;
+            height: 500px;
+        }
+
+        .floating-figurine {
+            position: absolute;
+            animation: moveFloat 8s ease-in-out infinite;
+        }
+
+        /* Position de départ pour chaque figurine avec espacement */
+        .figurine-1 {
+            top: 5%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+        .figurine-2 {
+            top: 15%;
+            right: 5%;
+            animation-delay: 1.6s;
+        }
+        .figurine-3 {
+            top: 45%;
+            left: 25%;
+            animation-delay: 3.2s;
+        }
+        .figurine-4 {
+            top: 25%;
+            left: 55%;
+            animation-delay: 4.8s;
+        }
+        .figurine-5 {
+            top: 65%;
+            right: 15%;
+            animation-delay: 6.4s;
+        }
+
+        @keyframes moveFloat {
+            0% {
+                transform: translateY(0px) translateX(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-30px) translateX(20px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(-60px) translateX(0px) rotate(0deg);
+            }
+            75% {
+                transform: translateY(-30px) translateX(-20px) rotate(-5deg);
+            }
+            100% {
+                transform: translateY(0px) translateX(0px) rotate(0deg);
+            }
+        }
+
+        .hero-figurine-small {
+            max-width: 140px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .floating-figurine:hover .hero-figurine-small {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero-buttons .btn { display: block; width: 100%; margin-bottom: 1rem; }
+            .figurines-gallery { height: 350px; }
+            .hero-figurine-small { max-width: 100px; }
+        }
+
+        @media (max-width: 576px) {
+            .hero-title { font-size: 2rem; }
+            .hero-section { padding: 60px 0; }
+            .figurines-gallery { height: 300px; }
+            .hero-figurine-small { max-width: 80px; }
+        }
+
+        /* Features Section */
+        .feature-card {
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Featured Products */
+        .featured-card {
+            height: 100%;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .featured-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .featured-card:hover .product-image {
+            transform: scale(1.1);
+        }
+
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-image-container:hover .product-overlay {
+            opacity: 1;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 2;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .category-image {
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .newsletter-form .input-group {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form .form-control {
+            border-radius: 25px 0 0 25px;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+        }
+
+        .newsletter-form .btn {
+            border-radius: 0 25px 25px 0;
+            padding: 15px 30px;
+            font-weight: bold;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+
+        }
+    </style>
+{% endblock %}
