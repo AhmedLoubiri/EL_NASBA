@@ -41,6 +41,11 @@ class Commande
     #[ORM\Column(type: 'json')]
     private array $productQuantities = [];
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $verified = false;
 
     public function __construct()
     {
@@ -155,7 +160,28 @@ class Commande
         return $this;
     }
 
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
 
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
 
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): static
+    {
+        $this->verified = $verified;
+
+        return $this;
+    }
 
 }
