@@ -37,14 +37,14 @@
                                             <div class="d-flex align-items-center mb-2">
                                                 <img src="/placeholder.svg?height=50&width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
                                                 <div>
-                                                    <strong>{{ product.getLabel() }}</strong><br>S
-                                                    <small class="text-muted">{{ product.getPrix() }}€</small>
+                                                    <strong>{{ product.getLabel() }}</strong><br>
+                                                    <small class="text-muted">{{ product.getPrix() }}TND</small>
                                                 </div>
                                             </div>
                                         {% endfor %}
                                     </div>
                                     <div class="col-md-4 text-end">
-                                        <h6>Total: {{ commande.getPrixTotal() }}€</h6>
+                                        <h6>Total: {{ commande.getPrixTotal() }} DT</h6>
                                         <a href="{{ path('commandes.detail', {'id': commande.id}) }}" class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-eye"></i> Voir détails
                                         </a>

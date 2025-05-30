@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <div class="d-flex align-items-center mb-4">
-                    <a href="{{ path('app_orders') }}" class="btn btn-outline-secondary me-3">
+                    <a href="{{ path('admin.commandes.list') }}" class="btn btn-outline-secondary me-3">
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     <h1 class="mb-0">Commande n°{{ commande.id }}</h1>
@@ -112,22 +112,24 @@
 
                     <div class="card-footer bg-light">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                            <a href="{{ path('app_orders') }}" class="btn btn-outline-secondary">
+                            <a href="{{ path('admin.commandes.list') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Retour
                             </a>
 
                             <div class="d-flex gap-2">
-                                <!-- {//% if commande.etat in ['En attente', 'En cours'] %} -->
+                                {%if commande.etat in ['En attente', 'En cours','Expediée'] %}
                                 <a href="{{ path('admin_edit_commande', {'id': commande.getId()}) }}" class="btn btn-primary">
                                     <i class="fas fa-edit me-2"></i>Modifier etat
                                 </a>
-
-                                <a href="{{ path('commande_cancel', {'id': commande.getId()}) }}"
+                                {% endif %}
+                                {% if(commande.getEtat() == "Annulée")  %}
+                                <a href="{{ path('admin.commande.cancel', {'id': commande.getId()}) }}"
                                    class="btn btn-danger"
-                                   onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
-                                    <i class="fas fa-times me-2"></i>Annuler
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette commande ?');">
+                                    <i class="fas fa-times me-2"></i>Supprimer
                                 </a>
-                                <!--{//% endif %}-->
+
+                               {% endif %}
                             </div>
                         </div>
                     </div>
