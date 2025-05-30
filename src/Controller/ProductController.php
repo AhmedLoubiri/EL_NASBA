@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Form\ProductType;
 use App\Entity\Category;
 use App\Entity\Season;
 use App\Repository\ProductRepository;
@@ -99,15 +100,16 @@ final class ProductController extends AbstractController
         return $this->redirectToRoute('list_product');
     }
 
-    #[Route('/delete/{id}', name: 'delete_product')]
-    public function delete(Product $product = null): Response
+    #[Route('/{id}/delete', name: 'admin_delete', methods: ['POST'])]
+    public function delete(Request $request, Product $product): Response
     {
-        if (!$product) {
-            throw $this->createNotFoundException('Product not found');
+        if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
+            $this->entityManager->remove($product);
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Produit supprimé avec succès!');
         }
-        $this->entityManager->remove($product);
-        $this->entityManager->flush();
-        return $this->redirectToRoute('list_product');
+
+        return $this->redirectToRoute('app_product_app_product_admin');
     }
 
     #[Route('s', name: 'app_products')]
@@ -193,6 +195,59 @@ final class ProductController extends AbstractController
                 'total_products' => count($products),
             ]
         );
+    }
+
+    #[Route('/admin', name: 'app_product_admin')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function index(): Response
+    {
+        $products = $this->repository->findAll();
+
+        return $this->render('product/admin.html.twig', [
+            'products' => $products,
+        ]);
+    }
+
+    #[Route('/new', name: 'admin_new')]
+    public function new(Request $request): Response
+    {
+        $product = new Product();
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->persist($product);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Produit créé avec succès!');
+
+            return $this->redirectToRoute('app_product_app_product_admin');
+        }
+
+        return $this->render('product/new.html.twig', [
+            'product' => $product,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'admin_edit', requirements: ['id' => '\d+'])]
+    public function edit(Request $request, Product $product): Response
+    {
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Produit modifié avec succès!');
+
+            return $this->redirectToRoute('app_product_app_product_admin');
+        }
+
+        return $this->render('product/edit.html.twig', [
+            'product' => $product,
+            'form' => $form,
+        ]);
     }
 
 

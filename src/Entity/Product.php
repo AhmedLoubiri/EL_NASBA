@@ -46,7 +46,7 @@ class Product
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $quantité = null;
+    private ?int $quantity = null;
 
     public function __construct()
     {
@@ -183,20 +183,20 @@ class Product
         return $this;
     }
 
-    public function getQuantité(): ?int
+    public function getQuantity(): ?int
     {
-        return $this->quantité;
+        return $this->quantity;
     }
 
-    public function setQuantité(?int $quantité): static
+    public function setQuantity(?int $quantity): static
     {
-        $this->quantité = $quantité;
+        $this->quantity = $quantity;
 
         return $this;
     }
     public function isInStock(): bool
     {
-        return $this->quantité !== null && $this->quantité > 0;
+        return $this->quantity !== null && $this->quantity > 0;
     }
 
 }
