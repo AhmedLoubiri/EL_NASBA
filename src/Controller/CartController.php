@@ -80,19 +80,29 @@ class CartController extends AbstractController
 
         if (!$product) {
             $this->addFlash('error', 'Produit non trouvé');
-            return $this->redirectToRoute(
-                'app_cart', [
-                'error' => 'Produit non trouvé'
-                ]
-            );
+            return $this->redirectToRoute('app_cart');
+        }
+
+        if (!$product->isInStock()) {
+            $this->addFlash('warning', 'Ce produit est en rupture de stock.');
+            return $this->redirectToRoute('app_cart');
         }
 
         $quantity = $request->request->get('quantity');
         if (!$quantity || !is_numeric($quantity) || $quantity <= 0) {
             $quantity = 1;
+        } else {
+            $quantity = (int) $quantity;
         }
 
         $user = $this->getUser();
+        $currentQuantity = $this->getProductQuantityFromSession($session, $id);
+        $newTotalQuantity = $currentQuantity + $quantity;
+
+        if ($newTotalQuantity > $product->getQuantité()) {
+            $this->addFlash('warning', 'Stock insuffisant. Il reste seulement ' . $product->getQuantité() . ' exemplaire(s) disponible(s).');
+            return $this->redirectToRoute('app_cart');
+        }
 
         if ($user) {
             $panier = $user->getPanier();
@@ -107,36 +117,43 @@ class CartController extends AbstractController
                 $panier->addProduct($product);
             }
 
-            $currentQuantity = $this->getProductQuantityFromSession($session, $id);
-            $this->setProductQuantityInSession($session, $id, $currentQuantity + $quantity);
+            $this->setProductQuantityInSession($session, $id, $newTotalQuantity);
 
             $this->entityManager->flush();
         } else {
             $this->addToSessionCart($session, $id, $quantity);
         }
+
         $this->addFlash('success', 'Produit ajouté au panier');
         $referrer = $request->headers->get('referer');
-        if ($referrer) {
-            return $this->redirect($referrer);
-        }
-        return $this->redirectToRoute('app_cart');
+        return $referrer ? $this->redirect($referrer) : $this->redirectToRoute('app_cart');
     }
-
     #[IsGranted('ROLE_USER')]
     #[Route('/cart/update/{id}', name: 'app_cart_update', methods: ['POST'])]
     public function update(int $id, Request $request, SessionInterface $session): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $quantity = $data['quantity'] ?? 1;
+        $quantity = isset($data['quantity']) ? (int) $data['quantity'] : 1;
 
         $user = $this->getUser();
 
+        $product = $this->productRepository->find($id);
+        if (!$product) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], 404);
+        }
+
+        if ($quantity > $product->getQuantité()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Stock insuffisant. Quantité max: ' . $product->getQuantité()
+            ], 400);
+        }
+
         if ($user) {
-            $product = $this->productRepository->find($id);
             $panier = $user->getPanier();
 
-            if (!$product || !$panier || !$panier->getProduct()->contains($product)) {
-                return new JsonResponse(['success' => false, 'message' => 'Article non trouvé'], 404);
+            if (!$panier || !$panier->getProduct()->contains($product)) {
+                return new JsonResponse(['success' => false, 'message' => 'Produit non dans le panier'], 404);
             }
 
             if ($quantity <= 0) {
