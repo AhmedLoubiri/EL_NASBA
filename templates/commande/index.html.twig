@@ -1,7 +1,59 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Mes Commandes {% endblock %}
+{% block stylesheets %}
+    <style>
+        .order-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
 
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .product-card:hover {
+            border-color: #3498db;
+            background-color: #f8f9fa;
+        }
+
+        .product-card.selected {
+            border-color: #3498db;
+            background-color: #e3f2fd;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+    </style>
+{% endblock %}
 {% block body %}
     <div class="container my-5">
         <h2><i class="fas fa-box"></i> Mes Commandes</h2>
