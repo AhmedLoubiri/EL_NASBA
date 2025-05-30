@@ -118,15 +118,15 @@
 
                             <div class="d-flex gap-2">
                                 <!-- {//% if commande.etat in ['En attente', 'En cours'] %} -->
-                                    <a href="{{ path('commande_edit', {'id': commande.getId()}) }}" class="btn btn-primary">
-                                        <i class="fas fa-edit me-2"></i>Modifier
-                                    </a>
+                                <a href="{{ path('admin_edit_commande', {'id': commande.getId()}) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>Modifier etat
+                                </a>
 
-                                    <a href="{{ path('commande_cancel', {'id': commande.getId()}) }}"
-                                       class="btn btn-danger"
-                                       onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
-                                        <i class="fas fa-times me-2"></i>Annuler
-                                    </a>
+                                <a href="{{ path('commande_cancel', {'id': commande.getId()}) }}"
+                                   class="btn btn-danger"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                                    <i class="fas fa-times me-2"></i>Annuler
+                                </a>
                                 <!--{//% endif %}-->
                             </div>
                         </div>
@@ -154,3 +154,4 @@
         </div>
     </div>
 {% endblock %}
+

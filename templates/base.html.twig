@@ -214,8 +214,7 @@
             {% if categories is defined %}
               {% for category in categories %}
                 <li><a class="dropdown-item"
-                       href="{{ path('app_product_list_product_by_category', {'id': category.id}) }}">{{
-                    category.name }}</a></li>
+                       href="{{ path('app_product_list_product_by_category', {'id': category.id}) }}">{{category.label}}</a></li>
               {% endfor %}
             {% endif %}
           </ul>
