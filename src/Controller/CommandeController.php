@@ -8,12 +8,16 @@ use App\Form\CommandeForm;
 use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Uid\Uuid;
 
 #[Route('/commande')]
 final class CommandeController extends AbstractController
@@ -34,7 +38,7 @@ final class CommandeController extends AbstractController
     }
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/edit/{id}', name: 'admin_edit_commande')]
-    public function editEtatCommande(int $id, Request $request, EntityManagerInterface $em): Response
+    public function editEtatCommande(int $id, Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         $commande = $em->getRepository(Commande::class)->find($id);
         if (!$commande) {
@@ -127,6 +131,7 @@ final class CommandeController extends AbstractController
     public function editCommande(Commande $commande, Request $request, EntityManagerInterface $em): Response
     {
         $availableProducts = $commande->getProducts()->toArray();
+
         $form = $this->createForm(
             CommandeForm::class,
             $commande,
@@ -160,6 +165,9 @@ final class CommandeController extends AbstractController
             ]
         );
     }
+
+
+
     //final
     #[Route('admin/supprimer/{id}', name: 'admin.commande.cancel', methods: ['GET'])]
     public function cancel(Commande $commande, EntityManagerInterface $entityManager): RedirectResponse
@@ -177,7 +185,7 @@ final class CommandeController extends AbstractController
     }
 
     #[Route('/validate', name: 'app_validation')]
-    public function validateCommande(Request $request, EntityManagerInterface $em): Response
+    public function validateCommande(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         $user = $this->getUser();
         $session = $request->getSession();
@@ -230,8 +238,22 @@ final class CommandeController extends AbstractController
             $commande->setEtat('En attente');
             $commande->setPrixTotal($total);
             $commande->setProductQuantities($productQuantities);
+            $commande->setVerificationToken(Uuid::v4()->toRfc4122());
             $em->persist($commande);
             $em->flush();
+            $email = (new TemplatedEmail())
+                ->from('el.nasba.2025@gmail.com')
+                ->to($user->getEmail())
+                ->subject('Confirm your order')
+                ->htmlTemplate('email/purchase_verification.html.twig')
+                ->context(
+                    [
+                        'token' => $commande->getVerificationToken(),
+                    ]
+                );
+
+            $mailer->send($email);
+
             $session->set('user_cart_quantities', $quantities);
             $this->addFlash('success', 'Commande validée avec succès.');
             return $this->redirectToRoute('app_orders');
@@ -271,5 +293,30 @@ final class CommandeController extends AbstractController
             ]
         );
     }
-}
 
+        #[Route('/verify-purchase/{token}', name: 'verify_commande')]
+    public function verifyPurchase(string $token,  EntityManagerInterface $em): Response
+    {
+        $commande = $em->getRepository(Commande::class)->findOneBy(['verificationToken' => $token]);
+
+        if (!$commande) {
+            throw $this->createNotFoundException('Invalid or expired token');
+        }
+
+        $commande->setVerified(true);
+        $commande->setVerificationToken(null);
+        $em->flush();
+
+        $this->addFlash('success', 'Your purchase has been verified successfully.');
+
+        $commande->setEtat('En cours');
+
+        $quantities = $commande->getProductQuantities();
+        foreach ($commande->getProducts() as $product) {
+            $product->setQuantity($product->getQuantity() - ($quantities[$product->getId()] ?? 0));
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('app_orders');
+    }
+}
