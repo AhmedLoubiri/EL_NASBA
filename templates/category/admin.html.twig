@@ -49,13 +49,21 @@
                     title="Modifier">
                     <i class="fas fa-edit"></i>
                   </a>
-                  <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}" class="d-inline"
-                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                  {% if category.products|length > 0 %}
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            title="Impossible de supprimer : {{ category.products|length }} produit(s) associé(s)"
+                            disabled>
                       <i class="fas fa-trash"></i>
                     </button>
-                  </form>
+                  {% else %}
+                    <form method="post" action="{{ path('app_category_delete', {'id': category.id}) }}"
+                          class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+                      <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  {% endif %}
                 </div>
               </td>
             </tr>
