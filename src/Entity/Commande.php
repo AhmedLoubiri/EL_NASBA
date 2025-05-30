@@ -38,11 +38,16 @@ class Commande
     #[ORM\Column(length: 255)]
     private ?string $adresse = null;
 
+    #[ORM\Column(type: 'json')]
+    private array $productQuantities = [];
+
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        // Ensure the date_commande is set in the correct timezone
         $this->date_commande = new \DateTimeImmutable('now', new \DateTimeZone('Africa/Tunis'));
+        $this->productQuantities = [];
+
     }
 
     public function getId(): ?int
@@ -137,6 +142,19 @@ class Commande
 
         return $this;
     }
+
+    public function getProductQuantities(): array
+    {
+        return $this->productQuantities;
+    }
+
+    public function setProductQuantities(array $productQuantities): static
+    {
+        $this->productQuantities = $productQuantities;
+
+        return $this;
+    }
+
 
 
 
