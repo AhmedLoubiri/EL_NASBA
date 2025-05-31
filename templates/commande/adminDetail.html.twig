@@ -118,8 +118,10 @@
                                     <tr>
                                         <th>Total</th>
                                         <th class="text-end">{{ commande.getPrixTotal() }}DT</th>
-                                        <th class="text-end">Frais livraison</th>
-                                        <th>9.99DT</th>
+                                        {% if (commande.getPrixTotal() < 59.99) %}
+                                            <th class="text-end">Frais livraison</th>
+                                            <th>9.99DT</th>
+                                        {% endif %}
 
                                     </tr>
                                     </tfoot>

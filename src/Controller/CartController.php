@@ -67,8 +67,7 @@ class CartController extends AbstractController
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'total' => $total,
-            'cart_count' => count($cartItems),
-            'cart_id' => $user->getPanier()->getId()
+            'cart_count' => count($cartItems), 'cart_id' => $user && $user->getPanier() ? $user->getPanier()->getId() : null
             ]
         );
     }
