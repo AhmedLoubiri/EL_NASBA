@@ -94,12 +94,14 @@
       margin-bottom: 20px;
       border-radius: 10px;
     }
+
     /* Style the date picker to look elegant and work properly */
 
     .elegant-date-picker input[type="date"] {
       font-size: 0.85rem;
       color: #fff;
-      background-color: #2c3e50; /* dark background */
+      background-color: #2c3e50;
+      /* dark background */
       border: none;
       padding: 0.25rem 0.5rem;
       width: 140px;
@@ -135,7 +137,6 @@
     .search-btn:hover {
       color: #ccc;
     }
-
   </style>
 
   {% block stylesheets %}{% endblock %}
@@ -143,91 +144,98 @@
 
 <body>
 
-<div class="elegant-date-picker me-3">
-  <div class="d-flex align-items-center">
-    <form method="GET" action="{{ path('app_product_app_products') }}" class="d-flex align-items-center">
-      <div class="d-flex align-items-center date-input-group rounded-pill px-2 py-1">
-        <i class="fas fa-calendar-alt text-white-50 me-1"></i>
-        {# THE SYSTEM KNOWS TODAY'S DATE THROUGH PHP's 'now' FILTER #}
-        <input type="date"
-               class="form-control-sm"
-               name="filter_date"
-               value="{{ app.request.query.get('filter_date') ?? 'now'|date('Y-m-d') }}"
-               title="Today: {{ 'now'|date('Y-m-d') }} - Select date to find seasonal products">
-        <button type="submit" class="search-btn px-1" title="Search products">
-          <i class="fas fa-search"></i>
-        </button>
-      </div>
-    </form>
+  <div class="elegant-date-picker me-3">
+    <div class="d-flex align-items-center">
+      <form method="GET" action="{{ path('app_product_app_products') }}" class="d-flex align-items-center">
+        <div class="d-flex align-items-center date-input-group rounded-pill px-2 py-1">
+          <i class="fas fa-calendar-alt text-white-50 me-1"></i>
+          {# THE SYSTEM KNOWS TODAY'S DATE THROUGH PHP's 'now' FILTER #}
+          <input type="date" class="form-control-sm" name="filter_date"
+            value="{{ app.request.query.get('filter_date') ?? 'now'|date('Y-m-d') }}"
+            title="Today: {{ 'now'|date('Y-m-d') }} - Select date to find seasonal products">
+          <button type="submit" class="search-btn px-1" title="Search products">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
 
-    {# Show All / Auto Filter Toggle #}
-    <div class="ms-2">
-      {% if app.request.query.get('show_all') == '1' %}
+      {# Show All / Auto Filter Toggle #}
+      <div class="ms-2">
+        {% if app.request.query.get('show_all') == '1' %}
         <a href="{{ path('app_product_app_products') }}" class="show-all-btn" title="Auto-filter by today's season">
           <i class="fas fa-magic"></i>
         </a>
-      {% else %}
-        <a href="{{ path('app_product_app_products', {'show_all': '1'}) }}" class="show-all-btn" title="Show all products">
+        {% else %}
+        <a href="{{ path('app_product_app_products', {'show_all': '1'}) }}" class="show-all-btn"
+          title="Show all products">
           <i class="fas fa-list"></i>
         </a>
+        {% endif %}
+      </div>
+
+      {# Current season indicator with today's date #}
+      {% if todays_season is defined and todays_season %}
+      <span
+        class="season-indicator {{ app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') ? 'auto' : '' }}"
+        title="Today ({{ 'now'|date('Y-m-d') }}) is in {{ todays_season.name }} season">
+        <i class="fas fa-leaf me-1"></i>{{ todays_season.name }}
+        {% if app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') %}
+        <small>(Auto)</small>
+        {% endif %}
+      </span>
       {% endif %}
     </div>
-
-    {# Current season indicator with today's date #}
-    {% if todays_season is defined and todays_season %}
-      <span class="season-indicator {{ app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') ? 'auto' : '' }}"
-            title="Today ({{ 'now'|date('Y-m-d') }}) is in {{ todays_season.name }} season">
-                                    <i class="fas fa-leaf me-1"></i>{{ todays_season.name }}
-        {% if app.request.query.get('show_all') != '1' and not app.request.query.get('filter_date') %}
-          <small>(Auto)</small>
-        {% endif %}
-                                </span>
-    {% endif %}
   </div>
-</div>
 
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container">
-    <a class="navbar-brand" href="{{ path('app_home') }}">
-      <i class="fas fa-store"></i> EL_NASBA
-    </a>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="{{ path('app_home') }}">
+        <i class="fas fa-store"></i> EL_NASBA
+      </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ path('app_product_app_products') }}">Produits</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button"
-             data-bs-toggle="dropdown">
-            Catégories
-          </a>
-          <ul class="dropdown-menu">
-            {% if categories is defined %}
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_product_app_products') }}">Produits</a>
+          </li>
+          {% if app.user and is_granted('ROLE_ADMIN') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ path('app_categories') }}">Catégories</a>
+          </li>
+          {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button"
+              data-bs-toggle="dropdown">
+              Catégories
+            </a>
+            <ul class="dropdown-menu">
+              {% if categories is defined %}
               {% for category in categories %}
-                <li><a class="dropdown-item"
-                       href="{{ path('app_product_list_product_by_category', {'id': category.id}) }}">{{category.label}}</a></li>
+              <li><a class="dropdown-item"
+                  href="{{ path('app_product_list_product_by_category', {'id': category.id}) }}">{{category.label}}</a>
+              </li>
               {% endfor %}
-            {% endif %}
-          </ul>
-        </li>
-      </ul>
+              {% endif %}
+            </ul>
+          </li>
+          {% endif %}
+        </ul>
 
-      <ul class="navbar-nav">
-        {% if app.user %}
+        <ul class="navbar-nav">
+          {% if app.user %}
           <li class="nav-item">
             <a class="nav-link position-relative" href="{{ path('app_cart') }}">
               <i class="fas fa-shopping-cart"></i>
               {% if cart_count is defined and cart_count > 0 %}
-                <span class="cart-badge">{{ cart_count }}</span>
+              <span class="cart-badge">{{ cart_count }}</span>
               {% endif %}
             </a>
           </li>
@@ -245,66 +253,66 @@
               <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
             </ul>
           </li>
-        {% else %}
+          {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{{path('app_login')}}">Connexion</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{path('app_register')}}">Inscription</a>
           </li>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<!-- Flash Messages -->
-{% for type, messages in app.flashes %}
-  {% for message in messages %}
-    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  {% endfor %}
-{% endfor %}
-
-<!-- Main Content -->
-<main>
-  {% block body %}{% endblock %}
-</main>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <h5><i class="fas fa-store"></i> EL_NASBA</h5>
-        <p>Votre boutique en ligne de confiance pour tous vos besoins.</p>
-      </div>
-      <div class="col-md-4">
-        <h5>Liens Rapides</h5>
-        <ul class="list-unstyled">
-          <li><a href="{{ path('app_home') }}" class="text-light">Accueil</a></li>
-          <li><a href="{{ path('app_product_app_products') }}" class="text-light">Produits</a></li>
-          <li><a href="#" class="text-light">Contact</a></li>
+          {% endif %}
         </ul>
       </div>
-      <div class="col-md-4">
-        <h5>Contact</h5>
-        <p><i class="fas fa-envelope"></i> el.nasba.2025@gmail.com</p>
-        <p><i class="fas fa-phone"></i> +216 26 907 092</p>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% for type, messages in app.flashes %}
+  {% for message in messages %}
+  <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endfor %}
+
+  <!-- Main Content -->
+  <main>
+    {% block body %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h5><i class="fas fa-store"></i> EL_NASBA</h5>
+          <p>Votre boutique en ligne de confiance pour tous vos besoins.</p>
+        </div>
+        <div class="col-md-4">
+          <h5>Liens Rapides</h5>
+          <ul class="list-unstyled">
+            <li><a href="{{ path('app_home') }}" class="text-light">Accueil</a></li>
+            <li><a href="{{ path('app_product_app_products') }}" class="text-light">Produits</a></li>
+            <li><a href="#" class="text-light">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <h5>Contact</h5>
+          <p><i class="fas fa-envelope"></i> el.nasba.2025@gmail.com</p>
+          <p><i class="fas fa-phone"></i> +216 26 907 092</p>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="text-center">
+        <p>&copy; 2025 EL_NASBA. Tous droits réservés.</p>
       </div>
     </div>
-    <hr class="my-4">
-    <div class="text-center">
-      <p>&copy; 2025 EL_NASBA. Tous droits réservés.</p>
-    </div>
-  </div>
-</footer>
+  </footer>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-{% block javascripts %}{% endblock %}
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block javascripts %}{% endblock %}
 </body>
 
 </html>
