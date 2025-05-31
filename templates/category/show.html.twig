@@ -39,12 +39,12 @@
             <span class="price">{{ product.prix }}DT</span>
             <div class="btn-group">
               <a href="{{ path('app_product_list_product_by_category', {'id': product.id}) }}"
-                class="btn btn-outline-primary btn-sm">
+                class="btn btn-outline-primary btn-sm rounded d-flex align-items-center justify-content-center gap-1">
                 <i class="fas fa-eye"></i> Voir
               </a>
               {% if app.user %}
-              <form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}" class="d-inline">
-                <button type="submit" class="btn btn-primary btn-sm">
+              <form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}" class="d-inline ms-2">
+                <button type="submit" class="btn btn-primary btn-sm rounded">
                   <i class="fas fa-cart-plus"></i> Ajouter
                 </button>
               </form>
