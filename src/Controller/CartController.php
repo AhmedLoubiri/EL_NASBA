@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Panier;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
@@ -60,6 +61,13 @@ class CartController extends AbstractController
 
         $total = $subtotal + $shipping;
 
+        if(!$user->getPanier()) {
+            $panier = new Panier();
+            $user->setPanier($panier);
+            $this->entityManager->persist($panier);
+            $this->entityManager->flush();
+        }
+
         return $this->render(
             'cart/cart.html.twig', [
             'controller_name' => 'CartController',
@@ -68,8 +76,9 @@ class CartController extends AbstractController
             'shipping' => $shipping,
             'total' => $total,
             'cart_count' => count($cartItems),
-            'cart_id' => $user->getPanier()->getId()
-            ]
+            'cart_id' => $user->getPanier()->getId(),
+            'categories' => $this->entityManager->getRepository(Category::class)->findAll(),
+                ]
         );
     }
 

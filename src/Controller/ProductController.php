@@ -38,6 +38,7 @@ final class ProductController extends AbstractController
             return $this->render(
                 'product/show.html.twig', [
                     'product' => $product,
+                    'categories' => $this->doctrine->getRepository(Category::class)->findAll(),
                 ]
             );
         }
@@ -45,6 +46,7 @@ final class ProductController extends AbstractController
         return $this->render(
             'product/index.html.twig', [
                 'products' => $products,
+                'categories' => $this->doctrine->getRepository(Category::class)->findAll(),
             ]
         );
     }
@@ -162,17 +164,17 @@ final class ProductController extends AbstractController
 
         $sort = $request->query->get('sort', 'label');
         switch ($sort) {
-            case 'price_asc':
-                $queryBuilder->orderBy('p.prix', 'ASC');
-                break;
-            case 'price_desc':
-                $queryBuilder->orderBy('p.prix', 'DESC');
-                break;
-            case 'newest':
-                $queryBuilder->orderBy('p.id', 'DESC');
-                break;
-            default:
-                $queryBuilder->orderBy('p.label', 'ASC');
+        case 'price_asc':
+            $queryBuilder->orderBy('p.prix', 'ASC');
+            break;
+        case 'price_desc':
+            $queryBuilder->orderBy('p.prix', 'DESC');
+            break;
+        case 'newest':
+            $queryBuilder->orderBy('p.id', 'DESC');
+            break;
+        default:
+            $queryBuilder->orderBy('p.label', 'ASC');
         }
 
         $products = $queryBuilder->getQuery()->getResult();
@@ -198,9 +200,12 @@ final class ProductController extends AbstractController
     {
         $products = $this->repository->findAll();
 
-        return $this->render('product/admin.html.twig', [
+        return $this->render(
+            'product/admin.html.twig', [
             'products' => $products,
-        ]);
+            'categories' => $this->doctrine->getRepository(Category::class)->findAll(),
+            ]
+        );
     }
 
     #[Route('/new', name: 'admin_new')]
@@ -219,10 +224,13 @@ final class ProductController extends AbstractController
             return $this->redirectToRoute('app_product_app_product_admin');
         }
 
-        return $this->render('product/new.html.twig', [
+        return $this->render(
+            'product/new.html.twig', [
             'product' => $product,
             'form' => $form,
-        ]);
+            'categories' => $this->doctrine->getRepository(Category::class)->findAll(),
+            ]
+        );
     }
 
     #[Route('/{id}/edit', name: 'admin_edit', requirements: ['id' => '\d+'])]
@@ -239,10 +247,13 @@ final class ProductController extends AbstractController
             return $this->redirectToRoute('app_product_app_product_admin');
         }
 
-        return $this->render('product/edit.html.twig', [
+        return $this->render(
+            'product/edit.html.twig', [
             'product' => $product,
             'form' => $form,
-        ]);
+            'categories' => $this->doctrine->getRepository(Category::class)->findAll(),
+            ]
+        );
     }
 
 
@@ -303,6 +314,7 @@ final class ProductController extends AbstractController
             'product/show.html.twig', [
                 'product' => $product,
                 'related_products' => $relatedProducts,
+                'categories' => $this->entityManager->getRepository(Category::class)->findAll(),
             ]
         );
     }

@@ -2,133 +2,134 @@
 
 {% block title %}Mes Commandes {% endblock %}
 {% block stylesheets %}
-    <style>
-        .order-header {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
+<style>
+  .order-header {
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
 
-        .product-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            transition: all 0.2s ease;
-        }
+  .product-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+  }
 
-        .product-card:hover {
-            border-color: #3498db;
-            background-color: #f8f9fa;
-        }
+  .product-card:hover {
+    border-color: #3498db;
+    background-color: #f8f9fa;
+  }
 
-        .product-card.selected {
-            border-color: #3498db;
-            background-color: #e3f2fd;
-        }
+  .product-card.selected {
+    border-color: #3498db;
+    background-color: #e3f2fd;
+  }
 
-        .section-card {
-            background: white;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
+  .section-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
 
-        .btn-submit {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 25px;
-            color: white;
-            font-weight: 600;
-            transition: transform 0.2s ease;
-        }
+  .btn-submit {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+  }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            color: white;
-        }
-    </style>
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    color: white;
+  }
+</style>
 {% endblock %}
 {% block body %}
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-box"></i> Mes Commandes</h2>
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('admin.commandes.list') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-cog"></i> Administration
-                </a>
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-box"></i> Mes Commandes</h2>
+    {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('admin.commandes.list') }}" class="btn btn-outline-primary">
+      <i class="fas fa-cog"></i> Administration
+    </a>
+    {% endif %}
+  </div>
+  {% if commandes|length > 0 %}
+  <div class="row">
+    {% for commande in commandes %}
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">Commande n°{{ commande.id }}</h5>
+            <small class="text-muted">{{ commande.getDateCommande()|date('d/m/Y H:i;s') }}</small>
+          </div>
+          <div>
+            {% if commande.getEtat() == 'En attente' %}
+            <span class="badge bg-warning">En attente</span>
+            {% elseif commande.getEtat() == 'En cours' %}
+            <span class="badge bg-info">En cours</span>
+            {% elseif commande.getEtat() == 'Expédiée' %}
+            <span class="badge bg-primary">Expédiée</span>
+            {% elseif commande.getEtat() == 'delivered' %}
+            <span class="badge bg-success">Livrée</span>
+            {% else %}
+            <span class="badge bg-secondary">{{ commande.getEtat() }}</span>
             {% endif %}
+          </div>
         </div>
-        {% if commandes|length > 0 %}
-            <div class="row">
-                {% for commande in commandes %}
-                    <div class="col-12 mb-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-0">Commande n°{{ commande.id }}</h5>
-                                    <small class="text-muted">{{ commande.getDateCommande()|date('d/m/Y H:i;s') }}</small>
-                                </div>
-                                <div>
-                                    {% if commande.getEtat() == 'En attente' %}
-                                        <span class="badge bg-warning">En attente</span>
-                                    {% elseif commande.getEtat() == 'En cours' %}
-                                        <span class="badge bg-info">En cours</span>
-                                    {% elseif commande.getEtat() == 'Expédiée' %}
-                                        <span class="badge bg-primary">Expédiée</span>
-                                    {% elseif commande.getEtat() == 'delivered' %}
-                                        <span class="badge bg-success">Livrée</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">{{ commande.getEtat() }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <h6>Produits commandés:</h6>
-                                        {% for product in commande.getProducts() %}
-                                            <div class="d-flex align-items-center mb-2">
-                                                <img src="{{ asset('pics/' ~ product.ImageUrl) }}" height=50 width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
-                                                <div>
-                                                    <strong>{{ product.getLabel() }}</strong><br>
-                                                    <small class="text-muted">{{ product.getPrix() }}DT</small>
-                                                </div>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <h6>Total: {{ commande.getPrixTotal() }} DT</h6>
-                                        <a href="{{ path('commandes.detail', {'id': commande.id}) }}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i> Voir détails
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-               <!-- <div id="delivery-container">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <h6>Produits commandés:</h6>
+              {% for product in commande.getProducts() %}
+              <div class="d-flex align-items-center mb-2">
+                <img src="{{ asset('pics/' ~ product.ImageUrl) }}" height=50 width=50" class="rounded me-3"
+                  alt="{{ product.getLabel() }}">
+                <div>
+                  <strong>{{ product.getLabel() }}</strong><br>
+                  <small class="text-muted">{{ product.getPrix() }}DT</small>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="col-md-4 text-end">
+              <h6>Total: {{ commande.getPrixTotal() }} DT</h6>
+              <a href="{{ path('commandes.detail', {'id': commande.id}) }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-eye"></i> Voir détails
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <!-- <div id="delivery-container">
                     <img id="delivery-guy" src="{{ asset('assets/images/moto.png') }}" alt="Delivery Guy">
                     <div id="trail"></div>
                 </div>
                 -->
 
-            </div>
-        {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                <h4>Aucune commande</h4>
-                <p class="text-muted">Vous n'avez pas encore passé de commande</p>
-                <a href="{{ path('app_product_list_product') }}" class="btn btn-primary">
-                    <i class="fas fa-shopping-bag"></i> Commencer mes achats
-                </a>
-            </div>
-        {% endif %}
-    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+    <h4>Aucune commande</h4>
+    <p class="text-muted">Vous n'avez pas encore passé de commande</p>
+    <a href="{{ path('app_product_app_products') }}" class="btn btn-primary">
+      <i class="fas fa-shopping-bag"></i> Commencer mes achats
+    </a>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Panier;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,6 +40,7 @@ final class StripeController extends AbstractController
               'panier' => $cart,
               'items'  => $items,
               'cartId' => $cartId,
+            'categories' => $entityManager->getRepository(Category::class)->findAll(),
             ]
         );
     }

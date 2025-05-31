@@ -26,9 +26,12 @@ final class SeasonController extends AbstractController
     public function list(): Response
     {
         $seasons = $this->repository->findAll();
-        return $this->render('season/index.html.twig', [
+        return $this->render(
+            'season/index.html.twig', [
             'seasons' => $seasons,
-        ]);
+            'categories' => $this->doctrine->getRepository('App:Category')->findAll(),
+            ]
+        );
     }
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/add/{name}/{dateDebut}/{dateFin}', name: 'add_season')]
