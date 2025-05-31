@@ -1,147 +1,145 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administration des Produits - E-Commerce{% endblock %}
+{% block title %}Administration des Produits - EL_NASBA{% endblock %}
 
 {% block body %}
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-cog"></i> Administration des Produits</h2>
-            <div>
-                <a href="{{ path('app_product_admin_new') }}" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Nouveau produit
-                </a>
-                <a href="{{ path('app_product_list_product') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-eye"></i> Vue publique
-                </a>
-            </div>
-        </div>
-
-        {% if products|length > 0 %}
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Image</th>
-                                <th>Nom</th>
-                                <th>Prix</th>
-                                <th>Stock</th>
-                                <th>Catégories</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for product in products %}
-                                <tr>
-                                    <td>{{ product.id }}</td>
-                                    <td>
-                                        <img src="{{ asset('pics/' ~ product.ImageUrl) }}"
-                                             class="rounded"
-                                             style="width: 50px; height: 50px; object-fit: cover;"
-                                             alt="{{ product.label }}">
-                                    </td>
-                                    <td>
-                                        <strong>{{ product.label }}</strong>
-                                        {% if product.description %}
-                                            <br><small class="text-muted">{{ product.description|slice(0, 50) }}...</small>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <span class="text-success fw-bold">{{ product.prix }}dt</span>
-                                    </td>
-                                    <td>
-                                        {% if product.quantity > 0 %}
-                                            <span class="badge bg-success">{{ product.quantity}}</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Rupture</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if product.categories|length > 0 %}
-                                            {% for category in product.categories %}
-                                                <span class="badge bg-primary me-1">{{ category.label }}</span>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="text-muted">Aucune catégorie</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ path('app_product_show_product', {'id': product.id}) }}"
-                                               class="btn btn-outline-primary btn-sm" title="Voir">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ path('app_product_admin_edit', {'id': product.id}) }}"
-                                               class="btn btn-outline-warning btn-sm" title="Modifier">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-{#                                            <a href="{{ path('app_product_admin_categories', {'id': product.id}) }}"#}
-{#                                               class="btn btn-outline-info btn-sm" title="Gérer les catégories">#}
-{#                                                <i class="fas fa-tags"></i>#}
-{#                                            </a>#}
-                                            <form method="post" action="{{ path('app_product_admin_delete', {'id': product.id}) }}"
-                                                  class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statistics -->
-            <div class="row mt-4">
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body text-center">
-                            <h3>{{ products|length }}</h3>
-                            <p class="mb-0">Total Produits</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body text-center">
-                            <h3>{{ products|filter(p => p.quantity > 0)|length }}</h3>
-                            <p class="mb-0">En Stock</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-danger text-white">
-                        <div class="card-body text-center">
-                            <h3>{{ products|filter(p => p.quantity == 0)|length }}</h3>
-                            <p class="mb-0">Rupture</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body text-center">
-                            <h3>{{ products|filter(p => p.categories|length == 0)|length }}</h3>
-                            <p class="mb-0">Sans Catégorie</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-box fa-3x text-muted mb-3"></i>
-                <h4>Aucun produit</h4>
-                <p class="text-muted">Commencez par créer votre premier produit.</p>
-                <a href="{{ path('app_product_admin_new') }}" class="btn btn-success">
-                    <i class="fas fa-plus"></i> Créer un produit
-                </a>
-            </div>
-        {% endif %}
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-cog"></i> Administration des Produits</h2>
+    <div>
+      <a href="{{ path('app_product_admin_new') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nouveau produit
+      </a>
+      <a href="{{ path('app_product_app_products') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-eye"></i> Vue publique
+      </a>
     </div>
+  </div>
+
+  {% if products|length > 0 %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Nom</th>
+              <th>Prix</th>
+              <th>Stock</th>
+              <th>Catégories</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr>
+              <td>{{ product.id }}</td>
+              <td>
+                <img src="{{ asset('pics/' ~ product.ImageUrl) }}" class="rounded"
+                  style="width: 50px; height: 50px; object-fit: cover;" alt="{{ product.label }}">
+              </td>
+              <td>
+                <strong>{{ product.label }}</strong>
+                {% if product.description %}
+                <br><small class="text-muted">{{ product.description|slice(0, 50) }}...</small>
+                {% endif %}
+              </td>
+              <td>
+                <span class="text-success fw-bold">{{ product.prix }}dt</span>
+              </td>
+              <td>
+                {% if product.quantity > 0 %}
+                <span class="badge bg-success">{{ product.quantity}}</span>
+                {% else %}
+                <span class="badge bg-danger">Rupture</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if product.categories|length > 0 %}
+                {% for category in product.categories %}
+                <span class="badge bg-primary me-1">{{ category.label }}</span>
+                {% endfor %}
+                {% else %}
+                <span class="text-muted">Aucune catégorie</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ path('app_product_show_product', {'id': product.id}) }}"
+                    class="btn btn-outline-primary btn-sm" title="Voir">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{{ path('app_product_admin_edit', {'id': product.id}) }}"
+                    class="btn btn-outline-warning btn-sm" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  {# <a href="{{ path('app_product_admin_categories', {'id': product.id}) }}" #} {#
+                    class="btn btn-outline-info btn-sm" title="Gérer les catégories">#}
+                    {# <i class="fas fa-tags"></i>#}
+                    {# </a>#}
+                  <form method="post" action="{{ path('app_product_admin_delete', {'id': product.id}) }}"
+                    class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body text-center">
+          <h3>{{ products|length }}</h3>
+          <p class="mb-0">Total Produits</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-success text-white">
+        <div class="card-body text-center">
+          <h3>{{ products|filter(p => p.quantity > 0)|length }}</h3>
+          <p class="mb-0">En Stock</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-danger text-white">
+        <div class="card-body text-center">
+          <h3>{{ products|filter(p => p.quantity == 0)|length }}</h3>
+          <p class="mb-0">Rupture</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body text-center">
+          <h3>{{ products|filter(p => p.categories|length == 0)|length }}</h3>
+          <p class="mb-0">Sans Catégorie</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="fas fa-box fa-3x text-muted mb-3"></i>
+    <h4>Aucun produit</h4>
+    <p class="text-muted">Commencez par créer votre premier produit.</p>
+    <a href="{{ path('app_product_admin_new') }}" class="btn btn-success">
+      <i class="fas fa-plus"></i> Créer un produit
+    </a>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

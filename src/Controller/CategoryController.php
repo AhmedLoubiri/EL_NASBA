@@ -19,16 +19,19 @@ class CategoryController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private CategoryRepository $categoryRepository
-    ) {}
+    ) {
+    }
 
     #[Route('/list', name: 'app_categories')]
     public function index(): Response
     {
         $categories = $this->categoryRepository->findAll();
 
-        return $this->render('category/index.html.twig', [
+        return $this->render(
+            'category/index.html.twig', [
             'categories' => $categories,
-        ]);
+            ]
+        );
     }
 
     #[Route('/{id}', name: 'app_category_show', requirements: ['id' => '\d+'])]
@@ -36,10 +39,13 @@ class CategoryController extends AbstractController
     {
         $products = $category->getProducts();
 
-        return $this->render('category/show.html.twig', [
+        return $this->render(
+            'category/show.html.twig', [
             'category' => $category,
             'products' => $products,
-        ]);
+            'categories' => $this->categoryRepository->findAll(),
+            ]
+        );
     }
 
     #[Route('/admin', name: 'app_category_admin')]
@@ -48,9 +54,11 @@ class CategoryController extends AbstractController
     {
         $categories = $this->categoryRepository->findAll();
 
-        return $this->render('category/admin.html.twig', [
+        return $this->render(
+            'category/admin.html.twig', [
             'categories' => $categories,
-        ]);
+            ]
+        );
     }
 
     #[Route('/admin/new', name: 'app_category_new')]
@@ -70,10 +78,13 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('app_category_admin');
         }
 
-        return $this->render('category/new.html.twig', [
+        return $this->render(
+            'category/new.html.twig', [
             'category' => $category,
             'form' => $form,
-        ]);
+            'categories' => $this->categoryRepository->findAll(),
+            ]
+        );
     }
 
     #[Route('/admin/{id}/edit', name: 'app_category_edit', requirements: ['id' => '\d+'])]
@@ -91,10 +102,13 @@ class CategoryController extends AbstractController
             return $this->redirectToRoute('app_category_admin');
         }
 
-        return $this->render('category/edit.html.twig', [
+        return $this->render(
+            'category/edit.html.twig', [
             'category' => $category,
             'form' => $form,
-        ]);
+            'categories' => $this->categoryRepository->findAll(),
+            ]
+        );
     }
 
     #[Route('/admin/{id}/delete', name: 'app_category_delete', methods: ['POST'])]

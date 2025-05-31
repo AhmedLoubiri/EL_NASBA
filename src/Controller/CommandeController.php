@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Commande;
 use App\Entity\Product;
 use App\Form\CommandeForm;
@@ -33,6 +34,7 @@ final class CommandeController extends AbstractController
             'commande/adminIndex.html.twig', [
             'commandes' => $commandes,
             'controller_name' => 'CommandeController',
+            'categories' => $doctrine->getRepository(Category::class)->findAll(),
             ]
         );
     }
@@ -80,14 +82,17 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('admin.commandes.list');
         }
         $etats = ['En attente', 'En cours', 'Expédiée', 'Annulée'];
-        if( $oldEtat === 'En cours') {
+        if($oldEtat === 'En cours') {
             $etats = ['En cours','Annulée','Expediée'];
 
         }
-        return $this->render('commande/adminEdit.html.twig', [
+        return $this->render(
+            'commande/adminEdit.html.twig', [
             'commande' => $commande,
             'etats' => $etats,
-        ]);
+            'categories' => $em->getRepository(Category::class)->findAll(),
+            ]
+        );
     }
 
     //user:
@@ -99,6 +104,7 @@ final class CommandeController extends AbstractController
         return $this->render(
             'commande/index.html.twig', [
             'commandes' => $commandes,
+            'categories' => $em->getRepository(Category::class)->findAll(),
             ]
         );
     }
@@ -162,6 +168,7 @@ final class CommandeController extends AbstractController
             'commande/edit.html.twig', [
                 'form' => $form->createView(),
                 'commande' => $commande
+                ,'categories' => $em->getRepository(Category::class)->findAll(),
             ]
         );
     }
@@ -211,9 +218,11 @@ final class CommandeController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
         $commande = new Commande();
-        $form = $this->createForm(CommandeForm::class, $commande, [
+        $form = $this->createForm(
+            CommandeForm::class, $commande, [
             'panier_products' => $productsInCart
-        ]);
+            ]
+        );
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $selectedProducts = $commande->getProducts();
@@ -258,13 +267,16 @@ final class CommandeController extends AbstractController
             $this->addFlash('success', 'Commande validée avec succès.');
             return $this->redirectToRoute('app_orders');
         }
-        return $this->render('commande/validation.html.twig', [
+        return $this->render(
+            'commande/validation.html.twig', [
             'form' => $form->createView(),
             'quantities' => $quantities,// tableau [product_id => qty]
             'products' => $productsInCart,
+            'categories' => $em->getRepository(Category::class)->findAll(),
 
 
-        ]);
+            ]
+        );
     }
 
     #[Route('/admin/{id<\d+>}', name: 'admin.commandes.detail')]
@@ -276,12 +288,12 @@ final class CommandeController extends AbstractController
         }
         return $this->render(
             'commande/adminDetail.html.twig', [
-            'commande' => $commande
+            'commande' => $commande,
             ]
         );
     }
     #[Route('/{id<\d+>}', name: 'commandes.detail')]
-    public function detail(Commande $commande = null): Response
+    public function detail(Commande $commande = null, EntityManagerInterface $em): Response
     {
         if (!$commande) {
             $this->addFlash('error', "La commande n'existe pas");
@@ -289,7 +301,8 @@ final class CommandeController extends AbstractController
         }
         return $this->render(
             'commande/detail.html.twig', [
-            'commande' => $commande
+            'commande' => $commande,
+            'categories' => $em->getRepository(Category::class)->findAll(),
             ]
         );
     }

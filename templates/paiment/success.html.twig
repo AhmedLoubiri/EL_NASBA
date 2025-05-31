@@ -3,27 +3,27 @@
 {% block title %}Paiement réussi{% endblock %}
 
 {% block body %}
-    <div class="container text-center mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card border-success">
-                    <div class="card-body">
-                        <h1 class="text-success mb-4">
-                            <i class="fas fa-check-circle fa-3x"></i>
-                        </h1>
-                        <h2 class="text-success">Paiement réussi !</h2>
-                        <p class="lead mt-3">Merci pour votre fidélité !</p>
-                        <p>Votre paiement a été effectué avec succès.</p>
+<div class="container text-center mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-success">
+        <div class="card-body">
+          <h1 class="text-success mb-4">
+            <i class="fas fa-check-circle fa-3x"></i>
+          </h1>
+          <h2 class="text-success">Paiement réussi !</h2>
+          <p class="lead mt-3">Merci pour votre fidélité !</p>
+          <p>Votre paiement a été effectué avec succès.</p>
 
-                        <div class="mt-4">
-                            <a href="{{ path('app_product_list_product') }}" class="btn btn-primary">
-                                <i class="fas fa-shopping-cart me-2"></i>
-                                Revenir au catalogue
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <div class="mt-4">
+            <a href="{{ path('app_product_app_products') }}" class="btn btn-primary">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Revenir au catalogue
+            </a>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
 {% endblock %}
