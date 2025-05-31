@@ -16,20 +16,6 @@
     <div class="col-lg-6">
       <div class="product-images">
         <img src="{{ asset('pics/' ~ product.ImageUrl) }}" class="img-fluid rounded mb-3" alt="{{ product.label }}">
-        <div class="row">
-          <div class="col-3">
-            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 1">
-          </div>
-          <div class="col-3">
-            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 2">
-          </div>
-          <div class="col-3">
-            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 3">
-          </div>
-          <div class="col-3">
-            <img src="/placeholder.svg?height=100&width=100" class="img-fluid rounded" alt="Thumbnail 4">
-          </div>
-        </div>
       </div>
     </div>
 
@@ -56,13 +42,13 @@
 
       <!-- Add to Cart -->
       {% if app.user %}
-      {# {% if product.stock > 0 %} #}
+      {% if product.quantity > 0 %}
       <form method="post" action="{{ path('app_cart_add', {'id': product.id}) }}" class="mb-4">
         <div class="row align-items-end">
           <div class="col-md-3">
             <label for="quantity" class="form-label">Quantité</label>
             <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1"
-              max="{#{{ product.stock }}#}">
+              max="{{ product.quantity }}">
           </div>
           <div class="col-md-6">
             <button type="submit" class="btn btn-primary btn-lg">
@@ -71,7 +57,7 @@
           </div>
         </div>
       </form>
-      {# {% endif %} #}
+      {% endif %}
       {% else %}
       <div class="alert alert-info">
         <i class="fas fa-info-circle"></i>
@@ -106,29 +92,89 @@
   </div>
 
   <!-- Related Products -->
-  {% if related_products is defined and related_products|length > 0 %}
-  <section class="mt-5">
-    <h3>Produits similaires</h3>
-    <div class="row">
-      {% for related_product in related_products %}
-      <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card product-card h-100">
-          <img src="/placeholder.svg?height=200&width=250" class="product-image" alt="{{ related_product.label }}">
-          <div class="card-body">
-            <h6 class="card-title">{{ related_product.label }}</h6>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="price">{{ related_product.prix }}dt</span>
-              <a href="{{ path('app_product_show_product', {'id': related_product.id}) }}"
-                class="btn btn-outline-primary btn-sm">
-                Voir
-              </a>
+  {% if product.categories|length > 0 %}
+    {% if related_products is defined and related_products|length > 0 %}
+      <section class="mt-5">
+        <h3>
+          <i class="fas fa-layer-group"></i> Produits de la même catégorie
+          <small class="text-muted">({{ related_products|length }} produit{{ related_products|length > 1 ? 's' : '' }} trouvé{{ related_products|length > 1 ? 's' : '' }})</small>
+        </h3>
+        <div class="row">
+          {% for related_product in related_products %}
+            <div class="col-lg-3 col-md-6 mb-4">
+              <div class="card product-card h-100">
+                <img src="{{ asset('pics/' ~ related_product.ImageUrl) }}" class="product-image" alt="{{ related_product.label }}">
+                <div class="card-body">
+                  <h6 class="card-title">{{ related_product.label }}</h6>
+
+                  <!-- Categories -->
+                  <div class="mb-2">
+                    {% for category in related_product.categories %}
+                      <span class="badge bg-secondary me-1">{{ category.label }}</span>
+                    {% endfor %}
+                  </div>
+
+                  <!-- quantity Status -->
+                  <div class="mb-2">
+                    {% if related_product.quantity > 0 %}
+                      <span class="badge bg-success">
+                        <i class="fas fa-check"></i> En stock
+                      </span>
+                    {% else %}
+                      <span class="badge bg-danger">
+                        <i class="fas fa-times"></i> Rupture
+                      </span>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="price">{{ related_product.prix }}dt</span>
+                    <div class="btn-group">
+                      <a href="{{ path('app_product_show_product', {'id': related_product.id}) }}" class="btn btn-outline-primary btn-sm rounded d-flex align-items-center justify-content-center gap-1">
+                        <i class="fas fa-eye"></i> Voir
+                      </a>
+                      {% if app.user and related_product.quantity > 0 %}
+                        <form method="post" action="{{ path('app_cart_add', {'id': related_product.id}) }}" class="d-inline ms-2">
+                          <button type="submit" class="btn btn-primary btn-sm rounded">
+                            <i class="fas fa-cart-plus"> Ajouter</i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          {% endfor %}
         </div>
+      </section>
+    {% else %}
+      <section class="mt-5">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          Aucun autre produit trouvé dans les catégories :
+          {% for category in product.categories %}
+            <span class="badge bg-primary me-1">{{ category.label }}</span>
+          {% endfor %}
+        </div>
+        <div class="text-center">
+          <a href="{{ path('app_product_list_product') }}" class="btn btn-outline-primary">
+            <i class="fas fa-box"></i> Voir tous les produits
+          </a>
+        </div>
+      </section>
+    {% endif %}
+  {% else %}
+    <section class="mt-5">
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        Ce produit n'est assigné à aucune catégorie. Impossible de suggérer des produits similaires.
       </div>
-      {% endfor %}
-    </div>
-  </section>
+      <div class="text-center">
+        <a href="{{ path('app_product_list_product') }}" class="btn btn-outline-primary">
+          <i class="fas fa-box"></i> Voir tous les produits
+        </a>
+      </div>
+    </section>
   {% endif %}
 </div>
 {% endblock %}

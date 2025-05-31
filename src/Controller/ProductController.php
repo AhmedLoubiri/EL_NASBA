@@ -119,23 +119,19 @@ final class ProductController extends AbstractController
         $currentSeason = null;
         $filterDate = null;
 
-        // FILTRAGE PAR DATE - AFFICHER SEULEMENT LES PRODUITS DE LA SAISON CORRESPONDANTE
         if ($request->query->get('filter_date')) {
             try {
                 $filterDate = new \DateTime($request->query->get('filter_date'));
                 $currentSeason = $this->getSeasonByDate($filterDate);
 
                 if ($currentSeason) {
-                    // Filtrer les produits qui appartiennent à cette saison
                     $queryBuilder->join('p.relation', 's')
                         ->andWhere('s.id = :season_id')
                         ->setParameter('season_id', $currentSeason->getId());
                 } else {
-                    // Aucune saison trouvée pour cette date = aucun produit
                     $queryBuilder->andWhere('1 = 0'); // Condition impossible pour retourner 0 résultats
                 }
             } catch (\Exception $e) {
-                // Date invalide = aucun produit
                 $queryBuilder->andWhere('1 = 0');
             }
         }
@@ -147,7 +143,6 @@ final class ProductController extends AbstractController
                 ->setParameter('categories', $categoryIds);
         }
 
-        // Filter by specific seasons
         $seasonIds = $request->query->all('seasons'); // pas explode() ici
         if (!empty($seasonIds)) {
             $queryBuilder->join('p.relation', 'season')
@@ -280,8 +275,29 @@ final class ProductController extends AbstractController
     #[Route('/show/{id}', name: 'show_product')]
     public function show(Product $product): Response
     {
-        // Get related products (simple implementation)
-        $relatedProducts = $this->repository->findBy([], ['id' => 'DESC'], 4);
+        // Get related products from the same categories
+        $relatedProducts = [];
+
+        // Check if product has categories
+        if ($product->getCategories()->count() > 0) {
+            // Get category IDs
+            $categoryIds = [];
+            foreach ($product->getCategories() as $category) {
+                $categoryIds[] = $category->getId();
+            }
+
+            // Find products in the same categories, excluding current product
+            $queryBuilder = $this->repository->createQueryBuilder('p')
+                ->join('p.categories', 'c')
+                ->where('c.id IN (:categoryIds)')
+                ->andWhere('p.id != :productId')
+                ->setParameter('categoryIds', $categoryIds)
+                ->setParameter('productId', $product->getId())
+                ->setMaxResults(4)
+                ->orderBy('p.label', 'ASC');
+
+            $relatedProducts = $queryBuilder->getQuery()->getResult();
+        }
 
         return $this->render(
             'product/show.html.twig', [
