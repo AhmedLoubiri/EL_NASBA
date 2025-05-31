@@ -40,7 +40,7 @@
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-md-2">
-              <img src="{{ item.product.imageUrl ?? '/placeholder.svg?height=100&width=100' }}"
+              <img src="{{ asset('pics/' ~ item.product.imageUrl) ?? '/placeholder.svg?height=100&width=100' }}"
                 alt="{{ item.product.label }}" class="img-fluid rounded">
             </div>
             <div class="col-md-4">
@@ -48,7 +48,7 @@
               <p class="text-muted small">
                 {% if item.product.categories is not empty %}
                 {% for category in item.product.categories %}
-                {{ category.name }}{% if not loop.last %}, {% endif %}
+                {{ category.label }}{% if not loop.last %}, {% endif %}
                 {% endfor %}
                 {% else %}
                 Catégorie
@@ -134,18 +134,7 @@
         </div>
       </div>
 
-      <!-- Promo Code -->
-      <div class="card mt-3">
-        <div class="card-body">
-          <h6>Code promo</h6>
-          <form id="promoForm">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Entrez votre code" id="promoCode">
-              <button class="btn btn-outline-secondary" type="submit">Appliquer</button>
-            </div>
-          </form>
-        </div>
-      </div>
+
 
     </div>
   </div>

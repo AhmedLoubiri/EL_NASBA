@@ -35,10 +35,10 @@
                                         <h6>Produits commandés:</h6>
                                         {% for product in commande.getProducts() %}
                                             <div class="d-flex align-items-center mb-2">
-                                                <img src="/placeholder.svg?height=50&width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
+                                                <img src="{{ asset('pics/' ~ product.ImageUrl) }}" height=50 width=50" class="rounded me-3" alt="{{ product.getLabel() }}">
                                                 <div>
-                                                    <strong>{{ product.getLabel() }}</strong><br>S
-                                                    <small class="text-muted">{{ product.getPrix() }}€</small>
+                                                    <strong>{{ product.getLabel() }}</strong><br>
+                                                    <small class="text-muted">{{ product.getPrix() }}DT</small>
                                                 </div>
                                             </div>
                                         {% endfor %}

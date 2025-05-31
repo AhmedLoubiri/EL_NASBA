@@ -76,9 +76,14 @@
                                     <thead class="table-light">
                                     <tr>
                                         <th>Produit</th>
-                                        <th class="text-end">Prix</th>
+                                        <th class="text-center">Quantité</th>
+                                        <th class="text-end">Prix Unitaire</th>
+                                        <th class="text-end">Total produit</th>
+
                                     </tr>
                                     </thead>
+
+                                    <tbody>
                                     <tbody>
                                     {% for article in commande.products %}
                                         <tr>
@@ -88,21 +93,34 @@
                                                     {{ article.getLabel() }}
                                                 </div>
                                             </td>
-                                            <td class="text-end fw-bold">{{ article.getPrix() }} TND</td>
+                                            <td class="text-center">
+                                                {{ commande.productQuantities[article.id]|default(1) }}
+                                            </td>
+                                            <td class="text-end">
+                                                {{ article.getPrix() }} TND
+                                            </td>
+                                            <td class="text-end fw-bold">
+                                                {{ (commande.productQuantities[article.id]|default(1) * article.getPrix())|number_format(2, '.', ',') }} TND
+                                            </td>
                                         </tr>
                                     {% else %}
                                         <tr>
-                                            <td colspan="2" class="text-center text-muted py-3">
+                                            <td colspan="4" class="text-center text-muted py-3">
                                                 <i class="fas fa-box-open me-2"></i>
                                                 Aucun article associé
                                             </td>
                                         </tr>
                                     {% endfor %}
+
+
                                     </tbody>
                                     <tfoot class="table-light">
                                     <tr>
                                         <th>Total</th>
                                         <th class="text-end">{{ commande.getPrixTotal() }} TND</th>
+                                        <th class="text-end">Frais livraison</th>
+                                        <th>9.99DT</th>
+
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -115,13 +133,13 @@
                             <a href="{{ path('app_orders') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Retour
                             </a>
-
                             <div class="d-flex gap-2">
-                                {% if commande.etat in ['En attente'] %}
+                                {% if commande.etat == 'En attente' %}
                                     <a href="{{ path('commande.edit', {'id': commande.getId()}) }}" class="btn btn-primary">
                                         <i class="fas fa-edit me-2"></i>Modifier
                                     </a>
-
+                                {% endif %}
+                                {% if commande.etat in ['En attente','En cours'] %}
                                     <a href="{{ path('user.annuler.commande', {'id': commande.getId()}) }}"
                                        class="btn btn-danger"
                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">

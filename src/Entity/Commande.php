@@ -38,11 +38,21 @@ class Commande
     #[ORM\Column(length: 255)]
     private ?string $adresse = null;
 
+    #[ORM\Column(type: 'json')]
+    private array $productQuantities = [];
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $verified = false;
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        // Ensure the date_commande is set in the correct timezone
         $this->date_commande = new \DateTimeImmutable('now', new \DateTimeZone('Africa/Tunis'));
+        $this->productQuantities = [];
+
     }
 
     public function getId(): ?int
@@ -138,6 +148,40 @@ class Commande
         return $this;
     }
 
+    public function getProductQuantities(): array
+    {
+        return $this->productQuantities;
+    }
 
+    public function setProductQuantities(array $productQuantities): static
+    {
+        $this->productQuantities = $productQuantities;
+
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): static
+    {
+        $this->verified = $verified;
+
+        return $this;
+    }
 
 }
